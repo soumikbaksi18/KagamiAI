@@ -6,8 +6,11 @@ import { PortfolioOverview } from './PortfolioOverview';
 import { FaucetPanel } from './FaucetPanel';
 import { TokenBalances } from './TokenBalances';
 import { SetupGuide } from './SetupGuide';
+import { TradeInterface } from './TradeInterface';
+import { ToastContainer } from './Toast';
 import { useStrategies } from '../hooks/useStrategies';
 import { useTrades } from '../hooks/useTrades';
+import { useToast } from '../hooks/useToast';
 import { Strategy, TradeEvent } from '../types/contracts';
 
 interface DashboardProps {
@@ -16,22 +19,55 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) => {
-  const [activeTab, setActiveTab] = useState<'discover' | 'following' | 'my-strategies' | 'portfolio'>('discover');
+  const [activeTab, setActiveTab] = useState<'discover' | 'following' | 'my-strategies' | 'portfolio' | 'trade'>('discover');
   
   // Use custom hooks for contract data
-  const { strategies, loading: strategiesLoading, followStrategy, createNewStrategy } = useStrategies(account);
+  const { strategies, loading: strategiesLoading, followStrategy, createNewStrategy, refetchStrategies } = useStrategies(account);
   const { trades, loading: tradesLoading } = useTrades();
+  const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
   
   const loading = strategiesLoading || tradesLoading;
 
+  // Check if current user is a leader
+  const isLeader = strategies.some(strategy => strategy.leader === account);
+
   const handleFollow = async (leader: string, strategyId: number) => {
+    // Check if user is trying to follow their own strategy
+    if (leader === account) {
+      showWarning(
+        "Cannot Follow Yourself", 
+        "You cannot subscribe to your own strategy. Use the 'Trade' tab to execute trades as a leader."
+      );
+      return;
+    }
+
     try {
       console.log(`Following strategy ${strategyId} by ${leader}`);
       await followStrategy(leader, "0.1"); // Default 0.1 ETH subscription
-      // Show success notification
-    } catch (error) {
+      showSuccess(
+        "Successfully Followed!", 
+        `You are now following the strategy by ${leader.slice(0, 6)}...${leader.slice(-4)}`
+      );
+      refetchStrategies(); // Refresh to show updated follower count
+    } catch (error: any) {
       console.error('Failed to follow strategy:', error);
-      // Show error notification
+      
+      if (error.message?.includes("Cannot subscribe to yourself")) {
+        showWarning(
+          "Cannot Follow Yourself", 
+          "You cannot subscribe to your own strategy."
+        );
+      } else if (error.message?.includes("Already subscribed")) {
+        showWarning(
+          "Already Following", 
+          "You are already subscribed to this strategy."
+        );
+      } else {
+        showError(
+          "Follow Failed", 
+          "Failed to follow strategy. Please try again."
+        );
+      }
     }
   };
 
@@ -105,11 +141,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
 
       {/* Navigation Tabs */}
       <div className="glass-card p-2">
-        <div className="flex space-x-2">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-2">
           {[
             { key: 'discover', label: 'Discover Strategies', icon: TrendingUp },
             { key: 'following', label: 'Following', icon: Users },
             { key: 'my-strategies', label: 'My Strategies', icon: Activity },
+            { key: 'trade', label: 'Trade', icon: DollarSign },
             { key: 'portfolio', label: 'Portfolio', icon: PieChart }
           ].map(({ key, label, icon: Icon }) => (
             <button
@@ -125,12 +163,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
               <span>{label}</span>
             </button>
           ))}
+          </div>
+          
+          <button
+            onClick={() => {
+              console.log('Refreshing strategies...');
+              refetchStrategies();
+            }}
+            className="px-3 py-2 text-sm bg-white/60 hover:bg-white/80 rounded-lg border border-purple-200 transition-all"
+          >
+            🔄 Refresh
+          </button>
         </div>
       </div>
 
       {/* Main Content */}
       {activeTab === 'portfolio' ? (
         <PortfolioOverview account={account} />
+      ) : activeTab === 'trade' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <TradeInterface account={account} isLeader={isLeader} />
+          </div>
+          <div className="lg:col-span-1 space-y-6">
+            <TokenBalances account={account} />
+            <FaucetPanel account={account} />
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Strategies Grid */}
@@ -185,6 +244,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
           </div>
         </div>
       )}
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   );
 };

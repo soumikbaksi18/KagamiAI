@@ -140,14 +140,36 @@ export const useContracts = () => {
   };
 
   const createStrategy = async (name: string, description: string, performanceFee: number) => {
-    if (!strategyNFT) throw new Error('Contracts not initialized');
+    if (!strategyNFT) throw new Error('Contracts not initialized - please check network connection');
     
     try {
-      const tx = await strategyNFT.createStrategy(name, description, performanceFee);
-      await tx.wait();
+      console.log('Creating strategy with params:', { name, description, performanceFee });
+      
+      // Estimate gas first to catch any issues early
+      const gasEstimate = await strategyNFT.createStrategy.estimateGas(name, description, performanceFee);
+      console.log('Gas estimate:', gasEstimate.toString());
+      
+      const tx = await strategyNFT.createStrategy(name, description, performanceFee, {
+        gasLimit: gasEstimate * 120n / 100n // Add 20% buffer
+      });
+      
+      console.log('Transaction sent:', tx.hash);
+      const receipt = await tx.wait();
+      console.log('Transaction confirmed:', receipt);
+      
       return tx;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating strategy:', error);
+      
+      // Provide more specific error messages
+      if (error.code === 'CALL_EXCEPTION') {
+        throw new Error('Contract call failed - check if you already have a strategy or network connection');
+      } else if (error.code === 'INSUFFICIENT_FUNDS') {
+        throw new Error('Insufficient ETH for gas fees');
+      } else if (error.message?.includes('circuit breaker')) {
+        throw new Error('Network connection issue - please refresh and try again');
+      }
+      
       throw error;
     }
   };

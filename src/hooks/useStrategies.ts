@@ -20,7 +20,9 @@ export const useStrategies = (account?: string) => {
       
       // Get all strategy creation events to find all strategies
       const filter = strategyNFT.filters.StrategyCreated();
-      const events = await strategyNFT.queryFilter(filter, -1000); // Last 1000 blocks to avoid timeout
+      const events = await strategyNFT.queryFilter(filter, 0); // From genesis block to get all events
+      
+      console.log('Strategy events found:', events.length, events);
       
       if (events.length === 0) {
         console.log('No strategies found on-chain, using mock data');
@@ -50,7 +52,8 @@ export const useStrategies = (account?: string) => {
       setStrategies(strategiesData);
       console.log(`Loaded ${strategiesData.length} strategies from blockchain`);
     } catch (error) {
-      console.warn('Using fallback mock data due to blockchain connection issue:', error);
+      console.error('Error fetching strategies:', error);
+      console.warn('Using fallback mock data due to blockchain connection issue');
       setStrategies(getMockStrategies());
     } finally {
       setLoading(false);
