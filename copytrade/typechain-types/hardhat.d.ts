@@ -110,13 +110,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneInchPriceOracle__factory>;
     getContractFactory(
+      name: "SimplePool",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SimplePool__factory>;
+    getContractFactory(
+      name: "SimplePoolFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SimplePoolFactory__factory>;
+    getContractFactory(
       name: "StrategyNFT",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StrategyNFT__factory>;
-    getContractFactory(
-      name: "StrategyNFTMulti",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.StrategyNFTMulti__factory>;
     getContractFactory(
       name: "TestToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -247,15 +251,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.OneInchPriceOracle>;
     getContractAt(
+      name: "SimplePool",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SimplePool>;
+    getContractAt(
+      name: "SimplePoolFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SimplePoolFactory>;
+    getContractAt(
       name: "StrategyNFT",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.StrategyNFT>;
-    getContractAt(
-      name: "StrategyNFTMulti",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.StrategyNFTMulti>;
     getContractAt(
       name: "TestToken",
       address: string | ethers.Addressable,
@@ -364,13 +373,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.OneInchPriceOracle>;
     deployContract(
+      name: "SimplePool",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SimplePool>;
+    deployContract(
+      name: "SimplePoolFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SimplePoolFactory>;
+    deployContract(
       name: "StrategyNFT",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.StrategyNFT>;
-    deployContract(
-      name: "StrategyNFTMulti",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.StrategyNFTMulti>;
     deployContract(
       name: "TestToken",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -501,15 +514,20 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.OneInchPriceOracle>;
     deployContract(
+      name: "SimplePool",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SimplePool>;
+    deployContract(
+      name: "SimplePoolFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SimplePoolFactory>;
+    deployContract(
       name: "StrategyNFT",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.StrategyNFT>;
-    deployContract(
-      name: "StrategyNFTMulti",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.StrategyNFTMulti>;
     deployContract(
       name: "TestToken",
       args: any[],

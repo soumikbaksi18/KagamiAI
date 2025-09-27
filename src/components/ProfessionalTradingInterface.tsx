@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, ArrowUpDown, Settings, BarChart3, Users } from 'lucide-react';
+import { TrendingUp, BarChart3, Users } from 'lucide-react';
 import { useContracts } from '../hooks/useContracts';
 
 interface ProfessionalTradingInterfaceProps {
@@ -7,7 +7,7 @@ interface ProfessionalTradingInterfaceProps {
   isLeader?: boolean;
 }
 
-export const ProfessionalTradingInterface: React.FC<ProfessionalTradingInterfaceProps> = ({ account, isLeader }) => {
+export const ProfessionalTradingInterface: React.FC<ProfessionalTradingInterfaceProps> = ({ isLeader }) => {
   const [selectedPair, setSelectedPair] = useState('TUSDC/TETH');
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
   const [side, setSide] = useState<'buy' | 'sell'>('buy');

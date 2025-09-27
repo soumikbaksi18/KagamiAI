@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Users, Activity, BarChart3, Zap, Bot } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Activity, BarChart3, Zap } from 'lucide-react';
 import { StrategyCard } from './StrategyCard';
 import { TradesFeed } from './TradesFeed';
 import { PortfolioOverview } from './PortfolioOverview';
@@ -22,7 +22,7 @@ export const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ ac
   
   const { strategies, loading: strategiesLoading, followStrategy, refetchStrategies } = useStrategies();
   const { trades, loading: tradesLoading } = useTrades();
-  const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
+  const { showSuccess, showError, showWarning } = useToast();
   
   const loading = strategiesLoading || tradesLoading;
 
@@ -41,7 +41,7 @@ export const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ ac
     strategy.leader?.toLowerCase() !== account?.toLowerCase() && strategy.totalFollowers > 0
   );
 
-  const handleFollow = async (leader: string, strategyId: number) => {
+  const handleFollow = async (leader: string) => {
     if (leader === account) {
       showWarning("Cannot Follow Yourself", "You cannot subscribe to your own strategy.");
       return;
@@ -328,7 +328,7 @@ export const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ ac
                             <span>${(parseFloat(strategy.totalVolume) / 1e12).toFixed(1)}M volume</span>
                           </div>
                           <button
-                            onClick={() => handleFollow(strategy.leader, index)}
+                            onClick={() => handleFollow(strategy.leader)}
                             className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
                           >
                             Follow

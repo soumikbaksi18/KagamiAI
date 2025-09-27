@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ProfessionalHeader } from './components/ProfessionalHeader';
 import { ProfessionalDashboard } from './components/ProfessionalDashboard';
-import { ProfessionalTradingInterface } from './components/ProfessionalTradingInterface';
+import { PoolsOverview } from './components/PoolsOverview';
+import { TradingDetail } from './components/TradingDetail';
 import { CreateStrategy } from './components/CreateStrategy';
 import { NetworkBanner } from './components/NetworkBanner';
 import TradeFlow from './components/TradeFlow';
@@ -58,16 +59,8 @@ function AppLayout() {
             isConnected={isConnected}
           />
         } />
-        <Route path="/trading" element={
-          <div className="min-h-screen bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <ProfessionalTradingInterface
-                account={address}
-                isLeader={true}
-              />
-            </div>
-          </div>
-        } />
+        <Route path="/trading" element={<PoolsOverview />} />
+        <Route path="/trading/:poolId" element={<TradingDetail account={address} isLeader={true} />} />
         <Route path="/tradeflow" element={
           <div className="min-h-screen bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

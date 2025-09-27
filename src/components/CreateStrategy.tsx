@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Target, Users } from 'lucide-react';
+import { X, Target } from 'lucide-react';
 
 interface CreateStrategyProps {
   isOpen: boolean;

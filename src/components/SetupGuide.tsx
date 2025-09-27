@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, Wallet, Network, Key } from 'lucide-react';
+import { Copy, Check, Wallet, Network, Key } from 'lucide-react';
 
 export const SetupGuide: React.FC = () => {
   const [copiedText, setCopiedText] = useState<string | null>(null);

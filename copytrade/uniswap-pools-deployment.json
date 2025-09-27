@@ -1,0 +1,22 @@
+{
+  "poolFactory": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+  "tokens": {
+    "TUSDC": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "TETH": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    "TUSDT": "0x851356ae760d987E095750cCeb3bC6014560891C"
+  },
+  "pools": {
+    "TUSDC/TETH": {
+      "address": "0xDA756c9596bB5E69165142c55AF80B908D891ffb",
+      "fee": "0.3%",
+      "token0": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "token1": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+    },
+    "TUSDC/TUSDT": {
+      "address": "0xcA16B4430BC903fA049dC6BD212A016c220ba9de",
+      "fee": "0.05%",
+      "token0": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "token1": "0x851356ae760d987E095750cCeb3bC6014560891C"
+    }
+  }
+}

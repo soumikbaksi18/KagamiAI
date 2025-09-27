@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wallet, TrendingUp, BarChart3, Users, Settings, Bell, Search } from 'lucide-react';
+import { Wallet, TrendingUp, Settings, Bell, Search } from 'lucide-react';
 
 interface ProfessionalHeaderProps {
   isConnected: boolean;

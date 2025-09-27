@@ -9,11 +9,11 @@ interface TradeInterfaceProps {
 }
 
 export const TradeInterface: React.FC<TradeInterfaceProps> = ({ account, isLeader }) => {
-  const [tokenIn, setTokenIn] = useState(CONTRACTS.TestUSDC);
-  const [tokenOut, setTokenOut] = useState(CONTRACTS.TestETH);
+  const [tokenIn, setTokenIn] = useState<string>(CONTRACTS.TestUSDC);
+  const [tokenOut, setTokenOut] = useState<string>(CONTRACTS.TestETH);
   const [amountIn, setAmountIn] = useState('');
   const [isTrading, setIsTrading] = useState(false);
-  const { copyRelay, testUSDC, testETH } = useContracts();
+  const { copyRelay } = useContracts();
 
   const tokens = [
     { address: CONTRACTS.TestUSDC, symbol: 'TUSDC', name: 'Test USDC' },

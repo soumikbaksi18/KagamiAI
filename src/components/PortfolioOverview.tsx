@@ -1,12 +1,12 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react';
+import { TrendingUp, DollarSign, Percent } from 'lucide-react';
 
 interface PortfolioOverviewProps {
   account?: string;
 }
 
-export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account }) => {
+export const PortfolioOverview: React.FC<PortfolioOverviewProps> = () => {
   // Mock portfolio data
   const portfolioData = [
     { name: 'DeFi Yield Hunter', value: 45, color: '#d4a8ff' },

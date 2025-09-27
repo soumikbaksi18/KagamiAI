@@ -67,7 +67,7 @@ export const TradesFeed: React.FC<TradesFeedProps> = ({ trades = [], loading = f
             <p>No trades yet. Start following strategies to see live trades!</p>
           </div>
         ) : (
-          trades.map((trade, index) => (
+          trades.map((trade) => (
             <div key={trade.tradeId} className="trade-item">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">

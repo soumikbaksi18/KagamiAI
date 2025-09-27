@@ -14,7 +14,7 @@ interface FollowerData {
   lastTradeTime: number;
 }
 
-export const FollowersList: React.FC<FollowersListProps> = ({ leader, account }) => {
+export const FollowersList: React.FC<FollowersListProps> = ({ leader }) => {
   const [followers, setFollowers] = useState<string[]>([]);
   const [followerDetails, setFollowerDetails] = useState<FollowerData[]>([]);
   const [loading, setLoading] = useState(false);
