@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { CreateStrategy } from './components/CreateStrategy';
 import { NetworkBanner } from './components/NetworkBanner';
+import TradeFlow from './components/TradeFlow';
 import { useWallet } from './hooks/useWallet';
 import { useContracts } from './hooks/useContracts';
 import { Plus } from 'lucide-react';
 import './App.css';
 
-function App() {
+// Main App Layout Component
+function AppLayout() {
   const { isConnected, address, chainId, connect, disconnect, switchToLocalHardhat } = useWallet();
   const { createStrategy } = useContracts();
   const [showCreateStrategy, setShowCreateStrategy] = useState(false);
+  const location = useLocation();
 
   const handleCreateStrategy = async (strategyData: {
     name: string;
@@ -46,13 +50,18 @@ function App() {
           />
         )}
         
-        <Dashboard
-          account={address}
-          isConnected={isConnected}
-        />
+        <Routes>
+          <Route path="/" element={
+            <Dashboard
+              account={address}
+              isConnected={isConnected}
+            />
+          } />
+          <Route path="/tradeflow" element={<TradeFlow />} />
+        </Routes>
         
-        {/* Floating Action Button */}
-        {isConnected && (
+        {/* Floating Action Button - only show on dashboard */}
+        {isConnected && location.pathname === "/" && (
           <button
             onClick={() => setShowCreateStrategy(true)}
             className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group hover:scale-105"
@@ -68,6 +77,14 @@ function App() {
         />
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppLayout />
+    </Router>
   );
 }
 
