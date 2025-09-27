@@ -20,6 +20,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) => {
   const [activeTab, setActiveTab] = useState<'discover' | 'following' | 'my-strategies' | 'portfolio' | 'trade'>('discover');
+  const [myStrategiesSubTab, setMyStrategiesSubTab] = useState<'created' | 'joined'>('created');
   
   // Use custom hooks for contract data
   const { strategies, loading: strategiesLoading, followStrategy, createNewStrategy, refetchStrategies } = useStrategies(account);
@@ -30,6 +31,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
 
   // Check if current user is a leader
   const isLeader = strategies.some(strategy => strategy.leader === account);
+  
+  // Get strategies created by user
+  const createdStrategies = strategies.filter(strategy => 
+    strategy.leader?.toLowerCase() === account?.toLowerCase()
+  );
+  
+  // Get strategies joined by user (would be fetched from subscriptions in real implementation)
+  // For now, using mock data - in real app, this would come from CopyRelay subscription events
+  const joinedStrategies = strategies.filter(strategy => 
+    strategy.leader?.toLowerCase() !== account?.toLowerCase() && strategy.totalFollowers > 0
+  );
 
   const handleFollow = async (leader: string, strategyId: number) => {
     // Check if user is trying to follow their own strategy
@@ -194,6 +206,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Strategies Grid */}
           <div className="lg:col-span-2">
+            {/* My Strategies Sub-Tabs */}
+            {activeTab === 'my-strategies' && (
+              <div className="mb-6">
+                <div className="glass-card p-2">
+                  <div className="flex space-x-2">
+                    {[
+                      { key: 'created', label: `Created by Me (${createdStrategies.length})` },
+                      { key: 'joined', label: `Joined by Me (${joinedStrategies.length})` }
+                    ].map(({ key, label }) => (
+                      <button
+                        key={key}
+                        onClick={() => setMyStrategiesSubTab(key as 'created' | 'joined')}
+                        className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
+                          myStrategiesSubTab === key
+                            ? 'bg-white/60 text-purple-700 shadow-sm'
+                            : 'text-gray-600 hover:bg-white/30'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {loading ? (
                 [1, 2, 3, 4].map((i) => (
@@ -204,8 +242,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
               ) : (
                 strategies
                   .filter(strategy => {
-                    if (activeTab === 'my-strategies') return strategy.leader === account;
-                    if (activeTab === 'following') return false; // Would check actual subscriptions
+                    console.log('Filtering strategy:', strategy, 'activeTab:', activeTab, 'account:', account);
+                    if (activeTab === 'my-strategies') {
+                      if (myStrategiesSubTab === 'created') {
+                        const isOwner = strategy.leader?.toLowerCase() === account?.toLowerCase();
+                        console.log('Is owner check:', isOwner, strategy.leader, 'vs', account);
+                        return isOwner;
+                      } else {
+                        // 'joined' tab - show strategies user has subscribed to
+                        // For now, show strategies where user is not the owner but has followers (mock)
+                        return strategy.leader?.toLowerCase() !== account?.toLowerCase() && strategy.totalFollowers > 0;
+                      }
+                    }
+                    if (activeTab === 'following') return false; // Legacy tab
                     return true; // discover all
                   })
                   .map((strategy) => (
@@ -216,6 +265,44 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
                       isOwnStrategy={strategy.leader === account}
                     />
                   ))
+              )}
+              
+              {/* Empty State for My Strategies */}
+              {activeTab === 'my-strategies' && !loading && strategies.length > 0 && (
+                strategies.filter(strategy => {
+                  if (myStrategiesSubTab === 'created') {
+                    return strategy.leader?.toLowerCase() === account?.toLowerCase();
+                  } else {
+                    return strategy.leader?.toLowerCase() !== account?.toLowerCase() && strategy.totalFollowers > 0;
+                  }
+                }).length === 0 && (
+                  <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                      {myStrategiesSubTab === 'created' ? (
+                        <Activity className="w-8 h-8 text-purple-600" />
+                      ) : (
+                        <Users className="w-8 h-8 text-purple-600" />
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {myStrategiesSubTab === 'created' ? 'No Strategies Created' : 'No Strategies Joined'}
+                    </h3>
+                    <p className="text-gray-600 mb-4 max-w-sm">
+                      {myStrategiesSubTab === 'created' 
+                        ? 'You haven\'t created any strategies yet. Click the + button to create your first strategy!'
+                        : 'You haven\'t joined any strategies yet. Browse the Discover tab to find strategies to follow.'
+                      }
+                    </p>
+                    {myStrategiesSubTab === 'created' && (
+                      <button 
+                        onClick={() => {/* This would trigger strategy creation modal */}}
+                        className="btn-primary"
+                      >
+                        Create Your First Strategy
+                      </button>
+                    )}
+                  </div>
+                )
               )}
             </div>
             

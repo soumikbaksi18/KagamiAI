@@ -33,9 +33,12 @@ export const useStrategies = (account?: string) => {
       const strategiesData = await Promise.all(
         events.map(async (event: any) => {
           const tokenId = event.args.tokenId;
-          const strategy = await strategyNFT.getStrategy(tokenId);
+          console.log('Processing strategy tokenId:', tokenId);
           
-          return {
+          const strategy = await strategyNFT.getStrategy(tokenId);
+          console.log('Strategy data:', strategy);
+          
+          const strategyObj = {
             tokenId: Number(tokenId),
             leader: strategy.leader,
             name: strategy.name,
@@ -46,6 +49,9 @@ export const useStrategies = (account?: string) => {
             totalVolume: strategy.totalVolume.toString(),
             createdAt: Number(strategy.createdAt)
           };
+          
+          console.log('Processed strategy:', strategyObj);
+          return strategyObj;
         })
       );
       
