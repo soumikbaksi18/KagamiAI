@@ -5,6 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import { CreateStrategy } from './components/CreateStrategy';
 import { NetworkBanner } from './components/NetworkBanner';
 import TradeFlow from './components/TradeFlow';
+import TradeReflex from './components/TradeReflex';
 import { useWallet } from './hooks/useWallet';
 import { useContracts } from './hooks/useContracts';
 import { Plus } from 'lucide-react';
@@ -34,7 +35,7 @@ function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <Header
           isConnected={isConnected}
@@ -58,13 +59,14 @@ function AppLayout() {
             />
           } />
           <Route path="/tradeflow" element={<TradeFlow />} />
+          <Route path="/tradereflex" element={<TradeReflex />} />
         </Routes>
         
         {/* Floating Action Button - only show on dashboard */}
         {isConnected && location.pathname === "/" && (
           <button
             onClick={() => setShowCreateStrategy(true)}
-            className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group hover:scale-105"
+            className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group hover:scale-105 neon-glow"
           >
             <Plus className="w-6 h-6 text-white group-hover:rotate-90 transition-transform" />
           </button>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wallet, User, TrendingUp, BarChart3 } from 'lucide-react';
+import { Wallet, User, TrendingUp, BarChart3, Users } from 'lucide-react';
 
 interface HeaderProps {
   isConnected: boolean;
@@ -21,16 +21,16 @@ export const Header: React.FC<HeaderProps> = ({
   const location = useLocation();
 
   return (
-    <header className="glass-card p-6 mb-8">
+    <header className="glass-card p-6 mb-8 neon-glow">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold gradient-text">PookieFI</h1>
-              <p className="text-sm text-gray-600">Social Copy Trading Platform</p>
+              <p className="text-sm text-gray-400">Social Copy Trading Platform</p>
             </div>
           </div>
           
@@ -38,10 +38,10 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="flex items-center space-x-4">
             <Link
               to="/"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
                 location.pathname === "/"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 neon-glow"
+                  : "text-gray-400 hover:text-white hover:bg-purple-500/10 border border-transparent"
               }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -49,14 +49,25 @@ export const Header: React.FC<HeaderProps> = ({
             </Link>
             <Link
               to="/tradeflow"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
                 location.pathname === "/tradeflow"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 neon-glow"
+                  : "text-gray-400 hover:text-white hover:bg-purple-500/10 border border-transparent"
               }`}
             >
               <BarChart3 className="w-4 h-4" />
-              <span>Trade Flow</span>
+              <span>TradeFlow</span>
+            </Link>
+            <Link
+              to="/tradereflex"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                location.pathname === "/tradereflex"
+                  ? "bg-pink-500/20 text-pink-300 border border-pink-500/30 neon-glow-pink"
+                  : "text-gray-400 hover:text-white hover:bg-pink-500/10 border border-transparent"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>TradeReflex</span>
             </Link>
           </nav>
         </div>
@@ -64,13 +75,13 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center space-x-4">
           {isConnected ? (
             <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-green-100 px-3 py-2 rounded-lg">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-green-700">Connected</span>
+              <div className="flex items-center space-x-2 bg-green-500/20 border border-green-500/30 px-3 py-2 rounded-lg">
+                <div className="w-2 h-2 bg-green-400 rounded-full neon-pulse"></div>
+                <span className="text-sm font-medium text-green-400">Connected</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/50 px-3 py-2 rounded-lg">
-                <User className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-mono">{formatAddress(address || '')}</span>
+              <div className="flex items-center space-x-2 bg-black/30 border border-purple-500/30 px-3 py-2 rounded-lg">
+                <User className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-mono text-white">{formatAddress(address || '')}</span>
               </div>
               <button
                 onClick={() => {
