@@ -7,6 +7,7 @@ import { CandlestickChart } from './CandlestickChart';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 import { TWAPModal } from './TWAPModal';
+import { PublishStrategyModal } from './PublishStrategyModal';
 
 interface TradingDetailProps {
   account?: string;
@@ -32,6 +33,9 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
   const [isUpdatingOrderBook, setIsUpdatingOrderBook] = useState(false);
   const [chartUpdateTrigger, setChartUpdateTrigger] = useState(0);
   const [showTWAPModal, setShowTWAPModal] = useState(false);
+  const [leaderMode, setLeaderMode] = useState(false);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [selectedAIBot, setSelectedAIBot] = useState<string | undefined>(undefined);
 
   // Pool deployment addresses
   const POOL_ADDRESSES: { [key: string]: any } = {
@@ -399,6 +403,72 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
     return () => clearInterval(interval);
   }, [poolId]);
 
+  const handlePublishStrategy = async (strategyData: {
+    name: string;
+    description: string;
+    performanceFee: number;
+    strategyType: string;
+  }) => {
+    try {
+      console.log('⭐ Publishing strategy:', strategyData);
+      
+      // Show loading toast
+      addToast({
+        id: Date.now().toString(),
+        type: 'info',
+        message: 'Publishing strategy...'
+      });
+
+      // Connect to StrategyNFT contract
+      const provider = new ethers.JsonRpcProvider('http://localhost:8545');
+      const signer = await provider.getSigner();
+      
+      const STRATEGY_NFT_ABI = [
+        "function createStrategy(string memory name, string memory description, uint256 performanceFee) external returns (uint256)"
+      ];
+      
+      const strategyNFTContract = new ethers.Contract(
+        '0x9A676e781A523b5d0C0e43731313A708CB607508', // StrategyNFT address
+        STRATEGY_NFT_ABI,
+        signer
+      );
+
+      // Convert performance fee to basis points (5% = 500)
+      const performanceFeeBasisPoints = Math.floor(strategyData.performanceFee * 100);
+
+      // Create strategy on-chain
+      console.log('🚀 Creating strategy on-chain...');
+      const createTx = await strategyNFTContract.createStrategy(
+        strategyData.name,
+        strategyData.description,
+        performanceFeeBasisPoints
+      );
+
+      await createTx.wait();
+
+      // Success toast
+      addToast({
+        id: Date.now().toString(),
+        type: 'success',
+        message: `Strategy "${strategyData.name}" published successfully! You are now a strategy leader.`
+      });
+
+      // Close modal
+      setShowPublishModal(false);
+
+      console.log('✅ Strategy published successfully!');
+
+    } catch (error: any) {
+      console.error('❌ Strategy publishing failed:', error);
+      
+      addToast({
+        id: Date.now().toString(),
+        type: 'error',
+        message: `Strategy publishing failed: ${error.message || 'Unknown error'}`
+      });
+    }
+  };
+
   const handleCreateTWAP = async (twapData: {
     tokenIn: string;
     tokenOut: string;
@@ -672,6 +742,24 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Leader Mode Toggle */}
+              <div className="flex items-center space-x-3">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={leaderMode}
+                    onChange={(e) => setLeaderMode(e.target.checked)}
+                    className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-gray-300">Leader Mode</span>
+                </label>
+                {leaderMode && (
+                  <div className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-md border border-purple-500/30">
+                    Active
+                  </div>
+                )}
+              </div>
+              
               <button
                 onClick={() => {
                   console.log('🔄 Manual refresh triggered');
@@ -910,12 +998,15 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                   
                   {/* AI Trading Options */}
                   <div className="space-y-3">
-                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                    <div className={`bg-gray-700 rounded-lg p-3 border transition-colors cursor-pointer ${
+                      selectedAIBot === 'grid-trading' ? 'border-purple-500 bg-purple-500/10' : 'border-gray-600 hover:border-purple-500'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
                             <span>📊</span>
                             <span className="text-white font-medium">Grid Trading Bot</span>
+                            {selectedAIBot === 'grid-trading' && <span className="text-purple-400 text-xs">✓ Selected</span>}
                           </div>
                           <div className="text-xs text-gray-400 mt-1">24/7 buy low and sell high</div>
                           <div className="flex items-center space-x-1 mt-1">
@@ -923,18 +1014,34 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                             <span className="text-xs text-gray-400">98,413</span>
                           </div>
                         </div>
-                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
-                          Create
-                        </button>
+                        <div className="flex space-x-2">
+                          {leaderMode && (
+                            <button 
+                              onClick={() => {
+                                setSelectedAIBot('grid-trading');
+                                setShowPublishModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                            >
+                              Publish
+                            </button>
+                          )}
+                          <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                            Create
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                    <div className={`bg-gray-700 rounded-lg p-3 border transition-colors cursor-pointer ${
+                      selectedAIBot === 'dca-martingale' ? 'border-purple-500 bg-purple-500/10' : 'border-gray-600 hover:border-purple-500'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
                             <span>🎯</span>
                             <span className="text-white font-medium">DCA Bot (Martingale)</span>
+                            {selectedAIBot === 'dca-martingale' && <span className="text-purple-400 text-xs">✓ Selected</span>}
                           </div>
                           <div className="text-xs text-gray-400 mt-1">Auto reinvest, auto-compound</div>
                           <div className="flex items-center space-x-1 mt-1">
@@ -942,18 +1049,34 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                             <span className="text-xs text-gray-400">13,926</span>
                           </div>
                         </div>
-                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
-                          Create
-                        </button>
+                        <div className="flex space-x-2">
+                          {leaderMode && (
+                            <button 
+                              onClick={() => {
+                                setSelectedAIBot('dca-martingale');
+                                setShowPublishModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                            >
+                              Publish
+                            </button>
+                          )}
+                          <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                            Create
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                    <div className={`bg-gray-700 rounded-lg p-3 border transition-colors cursor-pointer ${
+                      selectedAIBot === 'rebalancing' ? 'border-purple-500 bg-purple-500/10' : 'border-gray-600 hover:border-purple-500'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
                             <span>⚖️</span>
                             <span className="text-white font-medium">Rebalancing Bot</span>
+                            {selectedAIBot === 'rebalancing' && <span className="text-purple-400 text-xs">✓ Selected</span>}
                           </div>
                           <div className="text-xs text-gray-400 mt-1">Create your own index</div>
                           <div className="flex items-center space-x-1 mt-1">
@@ -961,18 +1084,34 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                             <span className="text-xs text-gray-400">23,341</span>
                           </div>
                         </div>
-                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
-                          Create
-                        </button>
+                        <div className="flex space-x-2">
+                          {leaderMode && (
+                            <button 
+                              onClick={() => {
+                                setSelectedAIBot('rebalancing');
+                                setShowPublishModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                            >
+                              Publish
+                            </button>
+                          )}
+                          <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                            Create
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                    <div className={`bg-gray-700 rounded-lg p-3 border transition-colors cursor-pointer ${
+                      selectedAIBot === 'twap' ? 'border-purple-500 bg-purple-500/10' : 'border-gray-600 hover:border-purple-500'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
                             <span>🔄</span>
                             <span className="text-white font-medium">TWAP Bot</span>
+                            {selectedAIBot === 'twap' && <span className="text-purple-400 text-xs">✓ Selected</span>}
                           </div>
                           <div className="text-xs text-gray-400 mt-1">Buy crypto regularly, cost averaging</div>
                           <div className="flex items-center space-x-1 mt-1">
@@ -980,12 +1119,25 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                             <span className="text-xs text-gray-400">13,178</span>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => setShowTWAPModal(true)}
-                          className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors"
-                        >
-                          Create
-                        </button>
+                        <div className="flex space-x-2">
+                          {leaderMode && (
+                            <button 
+                              onClick={() => {
+                                setSelectedAIBot('twap');
+                                setShowPublishModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                            >
+                              Publish
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => setShowTWAPModal(true)}
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors"
+                          >
+                            Create
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1099,6 +1251,22 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                   </button>
                 </div>
               )}
+              
+              {/* Publish Strategy Button (Leader Mode) */}
+              {leaderMode && (
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <button
+                    onClick={() => setShowPublishModal(true)}
+                    className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-md font-medium transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <span>⭐</span>
+                    <span>Publish Strategy</span>
+                  </button>
+                  <p className="text-xs text-gray-400 mt-2 text-center">
+                    Share your trading strategy and earn from followers
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Recent Trades */}
@@ -1139,6 +1307,14 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
         isOpen={showTWAPModal}
         onClose={() => setShowTWAPModal(false)}
         onSubmit={handleCreateTWAP}
+      />
+
+      {/* Publish Strategy Modal */}
+      <PublishStrategyModal
+        isOpen={showPublishModal}
+        onClose={() => setShowPublishModal(false)}
+        onSubmit={handlePublishStrategy}
+        selectedAIBot={selectedAIBot}
       />
 
       {/* Toast Notifications */}
