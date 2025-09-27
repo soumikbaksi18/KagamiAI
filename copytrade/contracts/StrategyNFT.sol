@@ -68,7 +68,7 @@ contract StrategyNFT is ERC721, Ownable {
         uint256 performanceFee
     ) external returns (uint256) {
         require(performanceFee <= 1000, "Performance fee cannot exceed 10%");
-        require(!isLeader[msg.sender], "Address already has a strategy");
+        // Removed: require(!isLeader[msg.sender], "Address already has a strategy");
         
         _tokenIds++;
         uint256 newTokenId = _tokenIds;
@@ -86,6 +86,8 @@ contract StrategyNFT is ERC721, Ownable {
             createdAt: block.timestamp
         });
         
+        // For multiple strategies, we'll store the latest strategy ID
+        // The frontend can use events to get all strategies by a leader
         leaderToTokenId[msg.sender] = newTokenId;
         isLeader[msg.sender] = true;
         

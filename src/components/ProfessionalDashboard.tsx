@@ -20,7 +20,7 @@ export const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ ac
   const [activeTab, setActiveTab] = useState<'overview' | 'discover' | 'v4-pools'>('overview');
   const [overviewSubTab, setOverviewSubTab] = useState<'portfolio' | 'created-strategies' | 'joined-strategies'>('portfolio');
   
-  const { strategies, loading: strategiesLoading, followStrategy, refetchStrategies } = useStrategies(account);
+  const { strategies, loading: strategiesLoading, followStrategy, refetchStrategies } = useStrategies();
   const { trades, loading: tradesLoading } = useTrades();
   const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
   

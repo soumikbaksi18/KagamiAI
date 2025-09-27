@@ -8,5 +8,6 @@ export type { CopyTradingHookV4 } from "./CopyTradingHookV4";
 export type { OneInchIntegration } from "./OneInchIntegration";
 export type { OneInchPriceOracle } from "./OneInchPriceOracle";
 export type { StrategyNFT } from "./StrategyNFT";
+export type { StrategyNFTMulti } from "./StrategyNFTMulti";
 export type { TestToken } from "./TestToken";
 export type { X402PaymentFacilitator } from "./X402PaymentFacilitator";

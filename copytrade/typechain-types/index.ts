@@ -56,6 +56,8 @@ export type { OneInchPriceOracle } from "./contracts/OneInchPriceOracle";
 export { OneInchPriceOracle__factory } from "./factories/contracts/OneInchPriceOracle__factory";
 export type { StrategyNFT } from "./contracts/StrategyNFT";
 export { StrategyNFT__factory } from "./factories/contracts/StrategyNFT__factory";
+export type { StrategyNFTMulti } from "./contracts/StrategyNFTMulti";
+export { StrategyNFTMulti__factory } from "./factories/contracts/StrategyNFTMulti__factory";
 export type { TestToken } from "./contracts/TestToken";
 export { TestToken__factory } from "./factories/contracts/TestToken__factory";
 export type { X402PaymentFacilitator } from "./contracts/X402PaymentFacilitator";

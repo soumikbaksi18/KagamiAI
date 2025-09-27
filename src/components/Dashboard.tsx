@@ -23,7 +23,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
   const [overviewSubTab, setOverviewSubTab] = useState<'portfolio' | 'created-strategies' | 'joined-strategies'>('portfolio');
   
   // Use custom hooks for contract data
-  const { strategies, loading: strategiesLoading, followStrategy, refetchStrategies } = useStrategies(account);
+  const { strategies, loading: strategiesLoading, followStrategy, refetchStrategies } = useStrategies();
   const { trades, loading: tradesLoading } = useTrades();
   const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
   

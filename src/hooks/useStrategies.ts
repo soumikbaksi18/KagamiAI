@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useContracts } from './useContracts';
 import { Strategy } from '../types/contracts';
 
-export const useStrategies = (account?: string) => {
+export const useStrategies = () => {
   const [strategies, setStrategies] = useState<(Strategy & { tokenId: number })[]>([]);
   const [loading, setLoading] = useState(true);
   const { strategyNFT, copyRelay } = useContracts();
@@ -24,11 +24,13 @@ export const useStrategies = (account?: string) => {
       
       console.log('Strategy events found:', events.length);
       events.forEach((event, i) => {
-        console.log(`Event ${i}:`, {
-          tokenId: event.args.tokenId.toString(),
-          leader: event.args.leader,
-          name: event.args.name
-        });
+        if ('args' in event) {
+          console.log(`Event ${i}:`, {
+            tokenId: event.args.tokenId.toString(),
+            leader: event.args.leader,
+            name: event.args.name
+          });
+        }
       });
       
       if (events.length === 0) {
@@ -39,6 +41,7 @@ export const useStrategies = (account?: string) => {
       
       const strategiesData = await Promise.all(
         events.map(async (event: any) => {
+          if (!('args' in event)) return null;
           const tokenId = event.args.tokenId;
           console.log('Processing strategy tokenId:', tokenId);
           
@@ -62,8 +65,10 @@ export const useStrategies = (account?: string) => {
         })
       );
       
-      setStrategies(strategiesData);
-      console.log(`Loaded ${strategiesData.length} strategies from blockchain`);
+      // Filter out null values and set strategies
+      const validStrategies = strategiesData.filter(strategy => strategy !== null);
+      setStrategies(validStrategies);
+      console.log(`Loaded ${validStrategies.length} strategies from blockchain`);
     } catch (error) {
       console.error('Error fetching strategies:', error);
       console.warn('Using fallback mock data due to blockchain connection issue');

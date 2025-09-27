@@ -8,5 +8,6 @@ export { CopyTradingHookV4__factory } from "./CopyTradingHookV4__factory";
 export { OneInchIntegration__factory } from "./OneInchIntegration__factory";
 export { OneInchPriceOracle__factory } from "./OneInchPriceOracle__factory";
 export { StrategyNFT__factory } from "./StrategyNFT__factory";
+export { StrategyNFTMulti__factory } from "./StrategyNFTMulti__factory";
 export { TestToken__factory } from "./TestToken__factory";
 export { X402PaymentFacilitator__factory } from "./X402PaymentFacilitator__factory";
