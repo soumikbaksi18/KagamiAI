@@ -113,7 +113,11 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   timeframe, 
   currentPrice 
 }) => {
+  console.log('🕯️ CandlestickChart received data:', data?.length, 'candles');
+  console.log('🕯️ Sample data:', data?.slice(0, 2));
+  
   if (!data || data.length === 0) {
+    console.log('❌ No candlestick data available');
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
@@ -179,28 +183,74 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
               }}
             />
             <YAxis 
+              yAxisId="price"
               stroke="#9ca3af"
               fontSize={10}
               domain={[minPrice - padding, maxPrice + padding]}
               tickFormatter={(value) => value.toFixed(5)}
             />
+            <YAxis 
+              yAxisId="volume"
+              orientation="right"
+              stroke="#9ca3af"
+              fontSize={10}
+              tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+            />
             <Tooltip content={<CustomTooltip />} />
+            
+            {/* High line (top of candle) */}
+            <Line
+              type="monotone"
+              dataKey="high"
+              stroke="#10b981"
+              strokeWidth={2}
+              dot={false}
+              name="High"
+              yAxisId="price"
+            />
+            
+            {/* Low line (bottom of candle) */}
+            <Line
+              type="monotone"
+              dataKey="low"
+              stroke="#ef4444"
+              strokeWidth={2}
+              dot={false}
+              name="Low"
+              yAxisId="price"
+            />
+            
+            {/* Open line */}
+            <Line
+              type="monotone"
+              dataKey="open"
+              stroke="#6b7280"
+              strokeWidth={1}
+              strokeDasharray="2 2"
+              dot={false}
+              name="Open"
+              yAxisId="price"
+            />
+            
+            {/* Close line (main price) */}
+            <Line
+              type="monotone"
+              dataKey="close"
+              stroke="#3b82f6"
+              strokeWidth={3}
+              dot={true}
+              dotFill="#3b82f6"
+              name="Close"
+              yAxisId="price"
+            />
             
             {/* Volume bars (scaled down and at bottom) */}
             <Bar 
               dataKey="volume" 
               fill="#3b82f6" 
-              fillOpacity={0.3}
+              fillOpacity={0.2}
               yAxisId="volume"
-            />
-            
-            {/* Candlesticks - using Line as a workaround for custom rendering */}
-            <Line
-              type="monotone"
-              dataKey="close"
-              stroke="transparent"
-              dot={false}
-              // We'll render custom candlesticks in a custom component
+              name="Volume"
             />
           </ComposedChart>
         </ResponsiveContainer>

@@ -69,7 +69,7 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
 
   // Generate candlestick data based on real pool activity
   const generateCandlestickData = (currentPrice: number, volume24h: string, timeframe: string = '5m', updateTrigger: number = 0) => {
-    if (!currentPrice) {
+    if (!currentPrice || currentPrice === 0) {
       // Fallback static data
       return [
         { time: '2024-01-01', open: 0.0005, high: 0.00052, low: 0.00048, close: 0.00051, volume: 1000000 },
@@ -79,6 +79,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
         { time: '2024-01-05', open: 0.00052, high: 0.00056, low: 0.00050, close: 0.00055, volume: 1300000 },
       ];
     }
+
+    console.log('🕯️ Generating candlestick data for price:', currentPrice, 'volume:', volume24h);
 
     const volumeNum = parseFloat(volume24h.replace(/[$,K]/g, '')) || 0;
     const basePrice = currentPrice;
@@ -142,12 +144,16 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
 
   // Use useMemo to regenerate candlestick data when relevant data changes
   const candlestickData = React.useMemo(() => {
-    return generateCandlestickData(
-      realTimeData?.price ? parseFloat(realTimeData.price) : parseFloat(pool?.currentPrice || '0'),
-      realTimeData?.volume24h || pool?.volume24h || '$0',
-      timeframe,
-      chartUpdateTrigger
-    );
+    const price = realTimeData?.price ? parseFloat(realTimeData.price) : parseFloat(pool?.currentPrice || '0');
+    const volume = realTimeData?.volume24h || pool?.volume24h || '$0';
+    
+    console.log('📊 Generating candlestick data with:', { price, volume, timeframe, pool: pool?.id });
+    
+    const data = generateCandlestickData(price, volume, timeframe, chartUpdateTrigger);
+    
+    console.log('📊 Generated candlestick data:', data?.length, 'candles');
+    
+    return data;
   }, [realTimeData, pool?.currentPrice, pool?.volume24h, timeframe, chartUpdateTrigger]);
 
   // Generate dynamic order book based on current pool state
@@ -792,11 +798,23 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
               {/* Candlestick Chart */}
               <div className="h-96 bg-gray-900 rounded-lg p-4">
                 <div className="h-full">
-                  <CandlestickChart 
-                    data={candlestickData} 
-                    timeframe={timeframe}
-                    currentPrice={realTimeData?.price || pool?.currentPrice}
-                  />
+                  {candlestickData && candlestickData.length > 0 ? (
+                    <CandlestickChart 
+                      data={candlestickData} 
+                      timeframe={timeframe}
+                      currentPrice={realTimeData?.price || pool?.currentPrice}
+                    />
+                  ) : (
+                    <div className="h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-red-400">Chart data not available</p>
+                        <p className="text-gray-500 text-sm mt-2">
+                          Pool: {pool?.id} | Price: {pool?.currentPrice} | Volume: {pool?.volume24h}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
