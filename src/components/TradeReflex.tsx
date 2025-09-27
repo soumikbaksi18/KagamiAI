@@ -13,7 +13,7 @@ import {
 
 // --- Minimal in-file UI primitives (shadcn-like) ---
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
-  <div className={`glass-card p-4 ${className}`}>{children}</div>
+  <div className={`glass-card-premium p-4 ${className}`}>{children}</div>
 );
 const CardHeader: React.FC = ({ children }) => <div className="flex items-center justify-between mb-3">{children}</div>;
 const CardTitle: React.FC = ({ children }) => <h3 className="text-lg font-semibold">{children}</h3>;
@@ -125,7 +125,7 @@ export default function TradeReflex() {
   const visible = useMemo(() => MOCK_STRATEGIES.filter((s) => (risk === "All" || s.risk === risk) && s.name.toLowerCase().includes(q.toLowerCase())), [q, risk]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2"><Users className="h-5 w-5 text-purple-400" /><CardTitle className="text-white">Discover Workflows (Subscribe to Copy)</CardTitle></div>
@@ -134,10 +134,10 @@ export default function TradeReflex() {
             <Select value={risk} onChange={(e) => setRisk(e.target.value)} className="w-40"><option>All</option><option>Conservative</option><option>Balanced</option><option>Aggressive</option></Select>
           </div>
         </CardHeader>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {visible.map((s) => (
             <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-              <Card className="p-4 neon-glow">
+              <div className="glass-card-premium p-4 neon-glow">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-sm text-gray-400">{s.chain} · {s.risk}</div>
@@ -157,7 +157,7 @@ export default function TradeReflex() {
                 </div>
                 <div className="mt-3 text-xs text-gray-400">Includes: {s.blocks.map((b) => b.kind).join(" · ")}</div>
                 <div className="mt-2 text-xs text-gray-500">{s.followers.toLocaleString()} followers</div>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -169,10 +169,10 @@ export default function TradeReflex() {
           <div className="flex items-center gap-2"><Layers className="h-5 w-5 text-pink-400" /><CardTitle className="text-white">Community Pools</CardTitle></div>
           <Button variant="outline"><Plus className="h-4 w-4" /> Create Pool</Button>
         </CardHeader>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {MOCK_STRATEGIES.slice(0,2).map((s, i) => (
             <motion.div key={s.id + "pool"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: i * 0.1 }}>
-              <Card className="p-4 neon-glow-pink">
+              <div className="glass-card-premium p-4 neon-glow-pink">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-semibold text-white">Pool #{i+1} · {s.name}</div>
@@ -191,7 +191,7 @@ export default function TradeReflex() {
                 <div className="mt-3 text-xs text-gray-400">
                   Pool APR: {s.aprPct.toFixed(1)}% · Max DD: {s.drawdownPct.toFixed(1)}%
                 </div>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -202,10 +202,10 @@ export default function TradeReflex() {
         <CardHeader>
           <div className="flex items-center gap-2"><Bot className="h-5 w-5 text-purple-400" /><CardTitle className="text-white">Featured Strategies</CardTitle></div>
         </CardHeader>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {MOCK_STRATEGIES.slice(0, 2).map((s, i) => (
             <motion.div key={s.id + "featured"} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25, delay: i * 0.1 }}>
-              <div className="flex items-center justify-between p-4 border border-purple-500/30 bg-black/20 rounded-xl neon-glow">
+              <div className="flex items-center justify-between p-4 glass-card-premium neon-glow">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
                     <Bot className="h-6 w-6 text-white" />

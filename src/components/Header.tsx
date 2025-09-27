@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   const location = useLocation();
 
   return (
-    <header className="glass-card p-6 mb-8 neon-glow">
+    <header className="glass-card-premium p-8 mb-12 neon-glow">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-3">
