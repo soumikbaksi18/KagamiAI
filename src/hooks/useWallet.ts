@@ -88,42 +88,79 @@ export const useWallet = () => {
   };
 
   const disconnect = async () => {
-    setWalletState({
-      isConnected: false,
-      loading: false
-    });
+    try {
+      // Clear local state
+      setWalletState({
+        isConnected: false,
+        loading: false
+      });
+      
+      // Clear any cached permissions (this helps reset the connection state)
+      if (typeof window.ethereum !== 'undefined' && window.ethereum.request) {
+        try {
+          // Request to disconnect (not all wallets support this)
+          await window.ethereum.request({
+            method: 'wallet_revokePermissions',
+            params: [{ eth_accounts: {} }]
+          });
+        } catch (error) {
+          // Fallback: Many wallets don't support revokePermissions
+          console.log('Wallet disconnect requested - please manually disconnect in MetaMask if needed');
+        }
+      }
+      
+      // Reload the page to ensure clean state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error during disconnect:', error);
+      // Still update local state even if wallet disconnect fails
+      setWalletState({
+        isConnected: false,
+        loading: false
+      });
+    }
   };
 
-  const switchToPolygonAmoy = async () => {
+  const switchToLocalHardhat = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
+        // First try to add the network
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: '0x7A69', // 31337 in hex
+              chainName: 'Local Hardhat Network',
+              nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18,
+              },
+              rpcUrls: ['http://localhost:8545'],
+              blockExplorerUrls: null, // Set to null for local networks
+            },
+          ],
+        });
+        
+        // Then switch to it
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x13882' }], // Polygon Amoy testnet
+          params: [{ chainId: '0x7A69' }],
         });
-      } catch (switchError: any) {
-        // This error code indicates that the chain has not been added to MetaMask
-        if (switchError.code === 4902) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: '0x13882',
-                  chainName: 'Polygon Amoy Testnet',
-                  nativeCurrency: {
-                    name: 'MATIC',
-                    symbol: 'MATIC',
-                    decimals: 18,
-                  },
-                  rpcUrls: ['https://rpc-amoy.polygon.technology/'],
-                  blockExplorerUrls: ['https://amoy.polygonscan.com/'],
-                },
-              ],
-            });
-          } catch (addError) {
-            console.error('Error adding Polygon Amoy network:', addError);
-          }
+        
+      } catch (error: any) {
+        if (error.code === 4001) {
+          // User rejected the request
+          alert('Please manually add the Local Hardhat network to MetaMask:\n\nNetwork Name: Local Hardhat\nRPC URL: http://localhost:8545\nChain ID: 31337\nCurrency: ETH');
+        } else if (error.code === -32002) {
+          // Request already pending
+          alert('Please check MetaMask - there may be a pending request to add the network.');
+        } else {
+          console.error('Error with network setup:', error);
+          alert('Network setup failed. Please add the network manually in MetaMask.');
         }
       }
     }
@@ -133,7 +170,7 @@ export const useWallet = () => {
     ...walletState,
     connect,
     disconnect,
-    switchToPolygonAmoy
+    switchToLocalHardhat
   };
 };
 

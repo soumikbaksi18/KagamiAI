@@ -13,12 +13,12 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
 
   const faucets = [
     {
-      id: 'matic',
-      name: 'Polygon Amoy MATIC',
-      url: 'https://faucet.polygon.technology/',
-      description: 'Get MATIC for gas fees',
+      id: 'eth',
+      name: 'Local ETH',
+      description: 'You have 10,000 ETH on Hardhat for gas fees',
       color: 'purple',
-      isContract: false
+      isContract: false,
+      disabled: true
     },
     {
       id: 'usdc',
@@ -29,7 +29,7 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
       amount: '1000'
     },
     {
-      id: 'eth',
+      id: 'testeth',
       name: 'Test ETH',
       description: 'Mint 10 test ETH tokens',
       color: 'green',
@@ -57,7 +57,7 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
         const tx = await mintTestUSDC(account, amount);
         console.log('USDC minted successfully:', tx.hash);
         alert(`Successfully minted ${amount} Test USDC!`);
-      } else if (faucetId === 'eth') {
+      } else if (faucetId === 'testeth') {
         const tx = await mintTestETH(account, amount);
         console.log('ETH minted successfully:', tx.hash);
         alert(`Successfully minted ${amount} Test ETH!`);
@@ -122,7 +122,7 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
               {faucet.isContract ? (
                 <button
                   onClick={() => mintTestTokens(faucet.id, faucet.amount || '100')}
-                  disabled={minting === faucet.id}
+                  disabled={minting === faucet.id || faucet.disabled}
                   className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {minting === faucet.id ? (
@@ -132,6 +132,10 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
                   )}
                   <span>{minting === faucet.id ? 'Minting...' : 'Mint'}</span>
                 </button>
+              ) : faucet.disabled ? (
+                <div className="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm">
+                  Available
+                </div>
               ) : (
                 <a
                   href={faucet.url}

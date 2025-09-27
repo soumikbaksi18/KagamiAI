@@ -42,7 +42,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-sm font-mono">{formatAddress(address || '')}</span>
               </div>
               <button
-                onClick={onDisconnect}
+                onClick={() => {
+                  if (confirm('Disconnect wallet? This will refresh the page.')) {
+                    onDisconnect();
+                  }
+                }}
                 className="btn-secondary"
               >
                 Disconnect

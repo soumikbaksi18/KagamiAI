@@ -9,7 +9,7 @@ import { Plus } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const { isConnected, address, chainId, connect, disconnect, switchToPolygonAmoy } = useWallet();
+  const { isConnected, address, chainId, connect, disconnect, switchToLocalHardhat } = useWallet();
   const { createStrategy } = useContracts();
   const [showCreateStrategy, setShowCreateStrategy] = useState(false);
 
@@ -42,7 +42,7 @@ function App() {
         {isConnected && (
           <NetworkBanner
             currentChainId={chainId}
-            onSwitchNetwork={switchToPolygonAmoy}
+            onSwitchNetwork={switchToLocalHardhat}
           />
         )}
         

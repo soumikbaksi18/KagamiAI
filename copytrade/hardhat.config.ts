@@ -16,7 +16,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      chainId: 1337,
+      chainId: 31337, // Use a unique chain ID for local development
     },
     // Testnets
     polygonAmoy: {

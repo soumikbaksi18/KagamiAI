@@ -40,51 +40,75 @@ export const useContracts = () => {
   const [testETH, setTestETH] = useState<ethers.Contract | null>(null);
 
   useEffect(() => {
-    if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      setProvider(provider);
-      
-      provider.getSigner().then(async (signer) => {
-        setSigner(signer);
-        
-        // Check if we're on the right network (Polygon Amoy = 80002)
-        const network = await provider.getNetwork();
-        console.log('Connected to network:', network.chainId);
-        
-        // Initialize contracts
-        const copyRelayContract = new ethers.Contract(
-          CONTRACTS.CopyRelay,
-          COPY_RELAY_ABI,
-          signer
-        );
-        
-        const strategyNFTContract = new ethers.Contract(
-          CONTRACTS.StrategyNFT,
-          STRATEGY_NFT_ABI,
-          signer
-        );
+    let mounted = true;
+    
+    const initializeContracts = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          if (!mounted) return;
+          
+          setProvider(provider);
+          
+          const signer = await provider.getSigner();
+          if (!mounted) return;
+          
+          setSigner(signer);
+          
+          const network = await provider.getNetwork();
+          console.log('Connected to network:', network.chainId);
+          
+          // Only initialize contracts if we're on the right network (31337 = Hardhat)
+          // Handle both BigInt and number types for chainId
+          const chainIdNumber = typeof network.chainId === 'bigint' ? Number(network.chainId) : network.chainId;
+          if (chainIdNumber === 31337) {
+            // Initialize contracts
+            const copyRelayContract = new ethers.Contract(
+              CONTRACTS.CopyRelay,
+              COPY_RELAY_ABI,
+              signer
+            );
+            
+            const strategyNFTContract = new ethers.Contract(
+              CONTRACTS.StrategyNFT,
+              STRATEGY_NFT_ABI,
+              signer
+            );
 
-        const testUSDCContract = new ethers.Contract(
-          CONTRACTS.TestUSDC,
-          TEST_TOKEN_ABI,
-          signer
-        );
+            const testUSDCContract = new ethers.Contract(
+              CONTRACTS.TestUSDC,
+              TEST_TOKEN_ABI,
+              signer
+            );
 
-        const testETHContract = new ethers.Contract(
-          CONTRACTS.TestETH,
-          TEST_TOKEN_ABI,
-          signer
-        );
-        
-        setCopyRelay(copyRelayContract);
-        setStrategyNFT(strategyNFTContract);
-        setTestUSDC(testUSDCContract);
-        setTestETH(testETHContract);
-      }).catch(error => {
-        console.warn('Contract initialization failed, using mock data:', error);
-        // Don't throw error, just log it - app will use fallback data
-      });
-    }
+            const testETHContract = new ethers.Contract(
+              CONTRACTS.TestETH,
+              TEST_TOKEN_ABI,
+              signer
+            );
+            
+            if (mounted) {
+              setCopyRelay(copyRelayContract);
+              setStrategyNFT(strategyNFTContract);
+              setTestUSDC(testUSDCContract);
+              setTestETH(testETHContract);
+            }
+          } else {
+            console.warn('Wrong network detected. Current:', chainIdNumber, 'Expected: 31337');
+          }
+        } catch (error) {
+          console.warn('Contract initialization failed, using mock data:', error);
+        }
+      }
+    };
+
+    // Add a small delay to avoid permission request loops
+    const timeoutId = setTimeout(initializeContracts, 500);
+    
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const subscribeToStrategy = async (leader: string, amount: string) => {
