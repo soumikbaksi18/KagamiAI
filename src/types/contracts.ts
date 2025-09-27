@@ -6,7 +6,8 @@ export const CONTRACTS = {
   StrategyNFT: "0x9A676e781A523b5d0C0e43731313A708CB607508", // Modified contract with multi-strategy support
   CopyRelay: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",   // From minimal deployment
   CopyHook: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",   // Deployed CopyHook
-  CopyTradingHookV4: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853" // Deployed v4 Hook
+  CopyTradingHookV4: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853", // Deployed v4 Hook
+  TWAPBot: "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726"     // TWAP Bot with 1inch integration
 } as const;
 
 // Network configuration
@@ -66,4 +67,20 @@ export interface TradeEvent {
   amountIn: string;
   amountOut: string;
   timestamp: number;
+}
+
+export interface TWAPOrder {
+  orderId: number;
+  user: string;
+  tokenIn: string;
+  tokenOut: string;
+  totalAmountIn: string;
+  amountPerInterval: string;
+  intervalSeconds: number;
+  executedAmount: string;
+  remainingIntervals: number;
+  lastExecutionTime: number;
+  minAmountOut: string;
+  isActive: boolean;
+  createdAt: number;
 }

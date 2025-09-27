@@ -10,5 +10,6 @@ export type { OneInchPriceOracle } from "./OneInchPriceOracle";
 export type { SimplePool } from "./SimplePool";
 export type { SimplePoolFactory } from "./SimplePoolFactory";
 export type { StrategyNFT } from "./StrategyNFT";
+export type { TWAPBot } from "./TWAPBot";
 export type { TestToken } from "./TestToken";
 export type { X402PaymentFacilitator } from "./X402PaymentFacilitator";

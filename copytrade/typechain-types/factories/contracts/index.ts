@@ -10,5 +10,6 @@ export { OneInchPriceOracle__factory } from "./OneInchPriceOracle__factory";
 export { SimplePool__factory } from "./SimplePool__factory";
 export { SimplePoolFactory__factory } from "./SimplePoolFactory__factory";
 export { StrategyNFT__factory } from "./StrategyNFT__factory";
+export { TWAPBot__factory } from "./TWAPBot__factory";
 export { TestToken__factory } from "./TestToken__factory";
 export { X402PaymentFacilitator__factory } from "./X402PaymentFacilitator__factory";

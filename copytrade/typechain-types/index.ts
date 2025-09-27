@@ -62,5 +62,7 @@ export type { StrategyNFT } from "./contracts/StrategyNFT";
 export { StrategyNFT__factory } from "./factories/contracts/StrategyNFT__factory";
 export type { TestToken } from "./contracts/TestToken";
 export { TestToken__factory } from "./factories/contracts/TestToken__factory";
+export type { TWAPBot } from "./contracts/TWAPBot";
+export { TWAPBot__factory } from "./factories/contracts/TWAPBot__factory";
 export type { X402PaymentFacilitator } from "./contracts/X402PaymentFacilitator";
 export { X402PaymentFacilitator__factory } from "./factories/contracts/X402PaymentFacilitator__factory";

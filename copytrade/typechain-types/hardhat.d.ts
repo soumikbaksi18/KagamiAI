@@ -126,6 +126,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestToken__factory>;
     getContractFactory(
+      name: "TWAPBot",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TWAPBot__factory>;
+    getContractFactory(
       name: "X402PaymentFacilitator",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.X402PaymentFacilitator__factory>;
@@ -271,6 +275,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TestToken>;
     getContractAt(
+      name: "TWAPBot",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TWAPBot>;
+    getContractAt(
       name: "X402PaymentFacilitator",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -389,6 +398,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TestToken>;
     deployContract(
+      name: "TWAPBot",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TWAPBot>;
+    deployContract(
       name: "X402PaymentFacilitator",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.X402PaymentFacilitator>;
@@ -533,6 +546,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TestToken>;
+    deployContract(
+      name: "TWAPBot",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TWAPBot>;
     deployContract(
       name: "X402PaymentFacilitator",
       args: any[],

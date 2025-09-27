@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import { CandlestickChart } from './CandlestickChart';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
+import { TWAPModal } from './TWAPModal';
 
 interface TradingDetailProps {
   account?: string;
@@ -22,6 +23,7 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
   const [loading, setLoading] = useState(true);
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
   const [side, setSide] = useState<'buy' | 'sell'>('buy');
+  const [tradingMode, setTradingMode] = useState<'ai' | 'spot'>('spot');
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,6 +31,7 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
   const [realTimeData, setRealTimeData] = useState<any>(null);
   const [isUpdatingOrderBook, setIsUpdatingOrderBook] = useState(false);
   const [chartUpdateTrigger, setChartUpdateTrigger] = useState(0);
+  const [showTWAPModal, setShowTWAPModal] = useState(false);
 
   // Pool deployment addresses
   const POOL_ADDRESSES: { [key: string]: any } = {
@@ -390,6 +393,99 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
     return () => clearInterval(interval);
   }, [poolId]);
 
+  const handleCreateTWAP = async (twapData: {
+    tokenIn: string;
+    tokenOut: string;
+    totalAmount: string;
+    intervals: number;
+    intervalHours: number;
+    minAmountOut: string;
+  }) => {
+    try {
+      console.log('🤖 Creating TWAP bot:', twapData);
+      
+      // Show loading toast
+      addToast({
+        id: Date.now().toString(),
+        type: 'info',
+        message: 'Creating TWAP bot...'
+      });
+
+      // Connect to TWAP Bot contract
+      const provider = new ethers.JsonRpcProvider('http://localhost:8545');
+      const signer = await provider.getSigner();
+      
+      const TWAP_BOT_ABI = [
+        "function createTWAPOrder(address tokenIn, address tokenOut, uint256 totalAmountIn, uint256 intervals, uint256 intervalSeconds, uint256 minAmountOut) external payable",
+        "function executionFee() external view returns (uint256)"
+      ];
+      
+      const twapBotContract = new ethers.Contract(
+        '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726', // TWAP Bot address
+        TWAP_BOT_ABI,
+        signer
+      );
+
+      // Get execution fee
+      const executionFee = await twapBotContract.executionFee();
+      const totalExecutionFee = executionFee * BigInt(twapData.intervals);
+
+      // Convert inputs
+      const totalAmountIn = ethers.parseEther(twapData.totalAmount);
+      const intervalSeconds = twapData.intervalHours * 3600; // Convert hours to seconds
+      const minAmountOut = ethers.parseEther(twapData.minAmountOut);
+
+      // First, approve the TWAP bot to spend tokens
+      const tokenContract = new ethers.Contract(
+        twapData.tokenIn,
+        ["function approve(address spender, uint256 amount) external returns (bool)"],
+        signer
+      );
+
+      console.log('📝 Approving TWAP bot to spend tokens...');
+      const approveTx = await tokenContract.approve(
+        '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726',
+        totalAmountIn
+      );
+      await approveTx.wait();
+
+      // Create TWAP order
+      console.log('🚀 Creating TWAP order...');
+      const createTx = await twapBotContract.createTWAPOrder(
+        twapData.tokenIn,
+        twapData.tokenOut,
+        totalAmountIn,
+        twapData.intervals,
+        intervalSeconds,
+        minAmountOut,
+        { value: totalExecutionFee }
+      );
+
+      await createTx.wait();
+
+      // Success toast
+      addToast({
+        id: Date.now().toString(),
+        type: 'success',
+        message: `TWAP bot created successfully! ${twapData.intervals} intervals over ${twapData.intervals * twapData.intervalHours} hours.`
+      });
+
+      // Close modal
+      setShowTWAPModal(false);
+
+      console.log('✅ TWAP bot created successfully!');
+
+    } catch (error: any) {
+      console.error('❌ TWAP creation failed:', error);
+      
+      addToast({
+        id: Date.now().toString(),
+        type: 'error',
+        message: `TWAP creation failed: ${error.message || 'Unknown error'}`
+      });
+    }
+  };
+
   const handleTrade = async () => {
     if (!executeTrade || !amount) return;
 
@@ -656,8 +752,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Chart Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Chart Section - 60% width */}
           <div className="lg:col-span-3 space-y-6">
             {/* Chart Controls */}
             <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
@@ -755,113 +851,236 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
           </div>
 
           {/* Trading Panel */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Right Panel - 40% width */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Trading Form */}
             <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
               <h3 className="text-lg font-semibold text-white mb-4">Place Order</h3>
               
-              {/* Order Type */}
-              <div className="flex mb-4">
+              {/* Trading Mode Tabs */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
                 <button
-                  onClick={() => setOrderType('market')}
-                  className={`flex-1 py-2 px-4 rounded-l-md text-sm font-medium ${
-                    orderType === 'market'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  onClick={() => setTradingMode('ai')}
+                  className={`py-3 px-4 rounded-md text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
+                    tradingMode === 'ai'
+                      ? 'bg-purple-600 text-white border border-purple-500'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
                   }`}
                 >
-                  Market
+                  <span>🤖</span>
+                  <span>AI Trading</span>
                 </button>
                 <button
-                  onClick={() => setOrderType('limit')}
-                  className={`flex-1 py-2 px-4 rounded-r-md text-sm font-medium ${
-                    orderType === 'limit'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  onClick={() => setTradingMode('spot')}
+                  className={`py-3 px-4 rounded-md text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
+                    tradingMode === 'spot'
+                      ? 'bg-blue-600 text-white border border-blue-500'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
                   }`}
                 >
-                  Limit
-                </button>
-              </div>
-
-              {/* Buy/Sell Toggle */}
-              <div className="flex mb-4">
-                <button
-                  onClick={() => setSide('buy')}
-                  className={`flex-1 py-2 px-4 rounded-l-md text-sm font-medium ${
-                    side === 'buy'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                >
-                  Buy
-                </button>
-                <button
-                  onClick={() => setSide('sell')}
-                  className={`flex-1 py-2 px-4 rounded-r-md text-sm font-medium ${
-                    side === 'sell'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                >
-                  Sell
+                  <span>⚡</span>
+                  <span>Spot Trading</span>
                 </button>
               </div>
 
-              {/* Amount Input */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Amount
-                </label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {/* AI Trading Content */}
+              {tradingMode === 'ai' && (
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">
+                    Choose an AI trading strategy
+                  </div>
+                  
+                  {/* AI Trading Options */}
+                  <div className="space-y-3">
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span>📊</span>
+                            <span className="text-white font-medium">Grid Trading Bot</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">24/7 buy low and sell high</div>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <span className="text-xs text-gray-400">👥</span>
+                            <span className="text-xs text-gray-400">98,413</span>
+                          </div>
+                        </div>
+                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                          Create
+                        </button>
+                      </div>
+                    </div>
 
-              {/* Price Input (for limit orders) */}
-              {orderType === 'limit' && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span>🎯</span>
+                            <span className="text-white font-medium">DCA Bot (Martingale)</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">Auto reinvest, auto-compound</div>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <span className="text-xs text-gray-400">👥</span>
+                            <span className="text-xs text-gray-400">13,926</span>
+                          </div>
+                        </div>
+                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                          Create
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span>⚖️</span>
+                            <span className="text-white font-medium">Rebalancing Bot</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">Create your own index</div>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <span className="text-xs text-gray-400">👥</span>
+                            <span className="text-xs text-gray-400">23,341</span>
+                          </div>
+                        </div>
+                        <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors">
+                          Create
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600 hover:border-purple-500 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span>🔄</span>
+                            <span className="text-white font-medium">TWAP Bot</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">Buy crypto regularly, cost averaging</div>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <span className="text-xs text-gray-400">👥</span>
+                            <span className="text-xs text-gray-400">13,178</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => setShowTWAPModal(true)}
+                          className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors"
+                        >
+                          Create
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* Order Summary */}
-              <div className="bg-gray-700 rounded-md p-3 mb-4">
-                <div className="flex justify-between text-sm text-gray-300 mb-1">
-                  <span>Total</span>
-                  <span>≈ {amount ? (parseFloat(amount) * 0.0005).toFixed(6) : '0.000000'} {pool?.token1.symbol}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>Fee</span>
-                  <span>0.1%</span>
-                </div>
-              </div>
+              {/* Spot Trading Content */}
+              {tradingMode === 'spot' && (
+                <div className="space-y-4">
+                  {/* Order Type */}
+                  <div className="flex">
+                    <button
+                      onClick={() => setOrderType('market')}
+                      className={`flex-1 py-2 px-4 rounded-l-md text-sm font-medium ${
+                        orderType === 'market'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Market
+                    </button>
+                    <button
+                      onClick={() => setOrderType('limit')}
+                      className={`flex-1 py-2 px-4 rounded-r-md text-sm font-medium ${
+                        orderType === 'limit'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Limit
+                    </button>
+                  </div>
 
-              {/* Submit Button */}
-              <button
-                onClick={handleTrade}
-                disabled={!amount || isSubmitting}
-                className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-                  side === 'buy'
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-red-600 hover:bg-red-700 text-white'
-                } ${(!amount || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {isSubmitting ? 'Processing...' : `${side === 'buy' ? 'Buy' : 'Sell'} ${pool?.token0.symbol}`}
-              </button>
+                  {/* Buy/Sell Toggle */}
+                  <div className="flex mb-4">
+                    <button
+                      onClick={() => setSide('buy')}
+                      className={`flex-1 py-2 px-4 rounded-l-md text-sm font-medium ${
+                        side === 'buy'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Buy
+                    </button>
+                    <button
+                      onClick={() => setSide('sell')}
+                      className={`flex-1 py-2 px-4 rounded-r-md text-sm font-medium ${
+                        side === 'sell'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Sell
+                    </button>
+                  </div>
+
+                  {/* Amount Input */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Amount
+                    </label>
+                    <input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Price Input (for limit orders) */}
+                  {orderType === 'limit' && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Price
+                      </label>
+                      <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+
+                  {/* Order Summary */}
+                  <div className="bg-gray-700 rounded-md p-3 mb-4">
+                    <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <span>Total</span>
+                      <span>≈ {amount ? (parseFloat(amount) * 0.0005).toFixed(6) : '0.000000'} {pool?.token1.symbol}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>Fee</span>
+                      <span>0.1%</span>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleTrade}
+                    disabled={!amount || isSubmitting || tradingMode === 'ai'}
+                    className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
+                      side === 'buy'
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                    } ${(!amount || isSubmitting || tradingMode === 'ai') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isSubmitting ? 'Processing...' : `${side === 'buy' ? 'Buy' : 'Sell'} ${pool?.token0.symbol}`}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Recent Trades */}
@@ -897,6 +1116,13 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
         </div>
       </div>
       
+      {/* TWAP Modal */}
+      <TWAPModal
+        isOpen={showTWAPModal}
+        onClose={() => setShowTWAPModal(false)}
+        onSubmit={handleCreateTWAP}
+      />
+
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
