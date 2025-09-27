@@ -29,32 +29,32 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
   return (
     <div className="space-y-6">
       {/* Portfolio Summary */}
-      <div className="glass-card p-6">
-        <h3 className="text-xl font-bold mb-6">Portfolio Overview</h3>
+      <div className="glass-card-premium p-6 neon-glow">
+        <h3 className="text-2xl font-bold text-white mb-6">Portfolio Overview</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+          <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 p-4 rounded-xl neon-glow">
             <div className="flex items-center space-x-2 mb-2">
-              <DollarSign className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-medium text-purple-700">Total Value</span>
+              <DollarSign className="w-5 h-5 text-purple-400" />
+              <span className="text-sm font-medium text-purple-300">Total Value</span>
             </div>
-            <p className="text-2xl font-bold text-purple-800">${totalValue.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-white">${totalValue.toLocaleString()}</p>
           </div>
           
-          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+          <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30 p-4 rounded-xl neon-glow">
             <div className="flex items-center space-x-2 mb-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-medium text-green-700">Total P&L</span>
+              <TrendingUp className="w-5 h-5 text-green-400" />
+              <span className="text-sm font-medium text-green-300">Total P&L</span>
             </div>
-            <p className="text-2xl font-bold text-green-800">+${totalPnL.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-white">+${totalPnL.toLocaleString()}</p>
           </div>
           
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+          <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 p-4 rounded-xl neon-glow">
             <div className="flex items-center space-x-2 mb-2">
-              <Percent className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">Return</span>
+              <Percent className="w-5 h-5 text-blue-400" />
+              <span className="text-sm font-medium text-blue-300">Return</span>
             </div>
-            <p className="text-2xl font-bold text-blue-800">+{totalPnLPercent}%</p>
+            <p className="text-2xl font-bold text-white">+{totalPnLPercent}%</p>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Allocation Pie Chart */}
           <div>
-            <h4 className="font-semibold mb-4">Strategy Allocation</h4>
+            <h4 className="font-semibold text-white mb-4 text-lg">Strategy Allocation</h4>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -81,7 +81,13 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
                   </Pie>
                   <Tooltip 
                     formatter={(value: any) => [`${value}%`, 'Allocation']}
-                    labelStyle={{ color: '#4a4a5a' }}
+                    labelStyle={{ color: '#ffffff' }}
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.9)', 
+                      border: '1px solid rgba(75, 85, 99, 0.5)',
+                      borderRadius: '8px',
+                      color: '#ffffff'
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -95,9 +101,9 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
                       className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: item.color }}
                     ></div>
-                    <span>{item.name}</span>
+                    <span className="text-white">{item.name}</span>
                   </div>
-                  <span className="font-medium">{item.value}%</span>
+                  <span className="font-medium text-white">{item.value}%</span>
                 </div>
               ))}
             </div>
@@ -105,7 +111,7 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
 
           {/* Performance Chart */}
           <div>
-            <h4 className="font-semibold mb-4">Performance Timeline</h4>
+            <h4 className="font-semibold text-white mb-4 text-lg">Performance Timeline</h4>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={performanceData}>
@@ -113,21 +119,22 @@ export const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ account })
                     dataKey="date" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                    tick={{ fontSize: 12, fill: '#9ca3af' }}
                   />
                   <YAxis 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                    tick={{ fontSize: 12, fill: '#9ca3af' }}
                     tickFormatter={(value) => `${value}%`}
                   />
                   <Tooltip 
                     formatter={(value: any) => [`${value}%`, 'Return']}
-                    labelStyle={{ color: '#4a4a5a' }}
+                    labelStyle={{ color: '#ffffff' }}
                     contentStyle={{ 
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
+                      backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                      border: '1px solid rgba(75, 85, 99, 0.5)',
+                      borderRadius: '8px',
+                      color: '#ffffff'
                     }}
                   />
                   <Line 

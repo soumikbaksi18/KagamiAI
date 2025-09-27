@@ -50,50 +50,52 @@ export const TokenBalances: React.FC<TokenBalancesProps> = ({ account }) => {
   if (!account) return null;
 
   return (
-    <div className="glass-card p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-            <Coins className="w-5 h-5 text-green-600" />
+    <div className="glass-card-premium p-6 neon-glow">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center neon-glow">
+            <Coins className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Token Balances</h3>
-            <p className="text-sm text-gray-600">Your test token holdings</p>
+            <h3 className="text-xl font-bold text-white">Token Balances</h3>
+            <p className="text-sm text-gray-400">Your test token holdings</p>
           </div>
         </div>
         
         <button
           onClick={fetchBalances}
           disabled={loading}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+          className="p-3 hover:bg-gray-700/50 rounded-xl transition-all duration-300 disabled:opacity-50 text-gray-400 hover:text-white"
         >
-          <RefreshCw className={`w-4 h-4 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {tokens.map((token) => (
           <div
             key={token.symbol}
-            className="flex items-center justify-between p-3 bg-white/30 rounded-lg border"
+            className="flex items-center justify-between p-4 bg-gray-800/30 border border-gray-700/50 rounded-xl hover:bg-gray-800/50 transition-all duration-300"
           >
-            <div className="flex items-center space-x-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
-                token.symbol === 'USDC' ? 'bg-blue-500' : 'bg-gray-700'
+            <div className="flex items-center space-x-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm ${
+                token.symbol === 'USDC' 
+                  ? 'bg-gradient-to-br from-blue-500 to-cyan-500 neon-glow' 
+                  : 'bg-gradient-to-br from-gray-600 to-gray-700'
               }`}>
                 {token.symbol === 'USDC' ? 'UC' : 'ETH'}
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{token.symbol}</p>
-                <p className="text-xs text-gray-500">Test Token</p>
+                <p className="font-bold text-white text-lg">{token.symbol}</p>
+                <p className="text-sm text-gray-400">Test Token</p>
               </div>
             </div>
             
             <div className="text-right">
-              <p className="font-bold text-gray-800">
+              <p className="font-bold text-white text-xl">
                 {loading ? '...' : (parseFloat(balances[token.symbol] || '0')).toFixed(2)}
               </p>
-              <p className="text-xs text-gray-500">{token.symbol}</p>
+              <p className="text-sm text-gray-400">{token.symbol}</p>
             </div>
           </div>
         ))}

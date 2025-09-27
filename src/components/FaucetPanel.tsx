@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Droplets, ExternalLink, Copy, Check, Loader } from 'lucide-react';
+import { Droplets, Copy, Check, Loader } from 'lucide-react';
 import { useContracts } from '../hooks/useContracts';
 
 interface FaucetPanelProps {
@@ -71,35 +71,35 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
   };
 
   return (
-    <div className="glass-card p-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <Droplets className="w-5 h-5 text-blue-600" />
+    <div className="glass-card-premium p-6 neon-glow">
+      <div className="flex items-center space-x-4 mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center neon-glow">
+          <Droplets className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold">Test Token Faucets</h3>
-          <p className="text-sm text-gray-600">Get tokens for testing</p>
+          <h3 className="text-xl font-bold text-white">Test Token Faucets</h3>
+          <p className="text-sm text-gray-400">Get tokens for testing</p>
         </div>
       </div>
 
       {/* Wallet Address */}
       {account && (
-        <div className="bg-gray-50/50 p-4 rounded-lg mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="bg-gray-800/30 border border-gray-700/50 p-4 rounded-xl mb-6">
+          <label className="block text-sm font-medium text-white mb-3">
             Your Wallet Address
           </label>
-          <div className="flex items-center space-x-2">
-            <code className="flex-1 text-sm bg-white/60 px-3 py-2 rounded border">
+          <div className="flex items-center space-x-3">
+            <code className="flex-1 text-sm bg-gray-800/50 px-4 py-3 rounded-xl border border-gray-600 text-gray-300 font-mono">
               {account}
             </code>
             <button
               onClick={() => copyToClipboard(account)}
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              className="p-3 hover:bg-gray-700/50 rounded-xl transition-all duration-300 text-gray-400 hover:text-white"
             >
               {copiedAddress === account ? (
-                <Check className="w-4 h-4 text-green-600" />
+                <Check className="w-5 h-5 text-green-400" />
               ) : (
-                <Copy className="w-4 h-4 text-gray-600" />
+                <Copy className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -107,23 +107,23 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
       )}
 
       {/* Faucet Links */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {faucets.map((faucet, index) => (
           <div
             key={index}
-            className={`border rounded-lg p-4 transition-all hover:border-${faucet.color}-300 hover:bg-${faucet.color}-50/30`}
+            className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 transition-all duration-300 hover:bg-gray-800/50 hover:border-gray-600/50"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-800">{faucet.name}</h4>
-                <p className="text-sm text-gray-600">{faucet.description}</p>
+                <h4 className="font-bold text-white text-lg">{faucet.name}</h4>
+                <p className="text-sm text-gray-400 mt-1">{faucet.description}</p>
               </div>
               
               {faucet.isContract ? (
                 <button
                   onClick={() => mintTestTokens(faucet.id, faucet.amount || '100')}
                   disabled={minting === faucet.id || faucet.disabled}
-                  className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 hover:scale-105"
                 >
                   {minting === faucet.id ? (
                     <Loader className="w-4 h-4 animate-spin" />
@@ -133,31 +133,25 @@ export const FaucetPanel: React.FC<FaucetPanelProps> = ({ account }) => {
                   <span>{minting === faucet.id ? 'Minting...' : 'Mint'}</span>
                 </button>
               ) : faucet.disabled ? (
-                <div className="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm">
+                <div className="px-4 py-2 bg-gray-700/50 text-gray-400 rounded-xl text-sm font-medium border border-gray-600">
                   Available
                 </div>
               ) : (
-                <a
-                  href={faucet.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary flex items-center space-x-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Get Tokens</span>
-                </a>
+                <div className="px-4 py-2 bg-gray-700/50 text-gray-400 rounded-xl text-sm font-medium border border-gray-600">
+                  Not Available
+                </div>
               )}
             </div>
           </div>
         ))}
       </div>
       
-      <div className="mt-6 p-4 bg-yellow-50/50 rounded-lg border border-yellow-200">
-        <div className="flex items-start space-x-2">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+      <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+        <div className="flex items-start space-x-3">
+          <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2"></div>
           <div>
-            <p className="text-sm font-medium text-yellow-800">Demo Tips</p>
-            <p className="text-xs text-yellow-700 mt-1">
+            <p className="text-sm font-semibold text-yellow-400">Demo Tips</p>
+            <p className="text-sm text-yellow-300 mt-1">
               Use these faucets to get test tokens for demonstrating copy trading functionality
             </p>
           </div>

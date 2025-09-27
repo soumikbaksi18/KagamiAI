@@ -8,6 +8,7 @@ const COPY_RELAY_ABI = [
   "function unsubscribe(address leader) external",
   "function executeTrade(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) external",
   "function getSubscription(address follower, address leader) external view returns (tuple(address follower, address leader, uint256 strategyId, uint256 subscriptionFee, uint256 performanceFee, bool isActive, uint256 subscribedAt, uint256 lastTradeTime))",
+  "function getFollowers(address leader) external view returns (address[])",
   "function totalSubscriptions() external view returns (uint256)",
   "function totalTrades() external view returns (uint256)",
   "event FollowerJoined(address indexed follower, address indexed leader, uint256 indexed strategyId, uint256 subscriptionFee, uint256 performanceFee)",
@@ -272,6 +273,21 @@ export const useContracts = () => {
     }
   };
 
+  const getFollowers = async (leader: string) => {
+    if (!copyRelay) {
+      console.warn('Contracts not initialized yet, returning empty followers list');
+      return [];
+    }
+    
+    try {
+      const followers = await copyRelay.getFollowers(leader);
+      return followers;
+    } catch (error) {
+      console.error('Error getting followers:', error);
+      return [];
+    }
+  };
+
   return {
     provider,
     signer,
@@ -288,6 +304,7 @@ export const useContracts = () => {
     mintTestUSDC,
     mintTestETH,
     getTokenBalance,
-    executeTrade
+    executeTrade,
+    getFollowers
   };
 };

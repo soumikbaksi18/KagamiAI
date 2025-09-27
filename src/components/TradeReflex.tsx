@@ -15,8 +15,8 @@ import {
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
   <div className={`glass-card-premium p-4 ${className}`}>{children}</div>
 );
-const CardHeader: React.FC = ({ children }) => <div className="flex items-center justify-between mb-3">{children}</div>;
-const CardTitle: React.FC = ({ children }) => <h3 className="text-lg font-semibold">{children}</h3>;
+const CardHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => <div className="flex items-center justify-between mb-3">{children}</div>;
+const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => <h3 className={`text-lg font-semibold ${className || ''}`}>{children}</h3>;
 const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "solid" | "ghost" | "outline" }> = ({ className = "", variant = "solid", children, ...props }) => {
   const base = "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50";
   const map: Record<string, string> = {

@@ -3,11 +3,11 @@ import { ArrowRight, Clock, User, TrendingUp } from 'lucide-react';
 import { TradeEvent } from '../types/contracts';
 
 interface TradesFeedProps {
-  trades: TradeEvent[];
+  trades?: TradeEvent[];
   loading?: boolean;
 }
 
-export const TradesFeed: React.FC<TradesFeedProps> = ({ trades, loading = false }) => {
+export const TradesFeed: React.FC<TradesFeedProps> = ({ trades = [], loading = false }) => {
   const formatToken = (address: string) => {
     // Simple token address mapping for display
     if (address === "0x5FbDB2315678afecb367f032d93F642f64180aa3") return "USDC";
@@ -17,7 +17,12 @@ export const TradesFeed: React.FC<TradesFeedProps> = ({ trades, loading = false 
 
   const formatAmount = (amount: string, decimals: number = 6) => {
     const amt = parseFloat(amount) / Math.pow(10, decimals);
-    return amt > 1000 ? `${(amt / 1000).toFixed(2)}K` : amt.toFixed(2);
+    if (amt === 0) return '0';
+    if (amt < 0.01) return '<0.01';
+    if (amt < 1000) return amt.toFixed(2);
+    if (amt < 1000000) return `${(amt / 1000).toFixed(1)}K`;
+    if (amt < 1000000000) return `${(amt / 1000000).toFixed(1)}M`;
+    return `${(amt / 1000000000).toFixed(1)}B`;
   };
 
   const formatTimeAgo = (timestamp: number) => {
@@ -33,11 +38,11 @@ export const TradesFeed: React.FC<TradesFeedProps> = ({ trades, loading = false 
   if (loading) {
     return (
       <div className="glass-card p-6">
-        <h3 className="text-lg font-semibold mb-4">Live Trades</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Live Trades</h3>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 h-16 rounded-lg"></div>
+              <div className="bg-gray-700 h-16 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -48,17 +53,17 @@ export const TradesFeed: React.FC<TradesFeedProps> = ({ trades, loading = false 
   return (
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">Live Trades</h3>
+        <h3 className="text-lg font-semibold text-white">Live Trades</h3>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm text-gray-600">Live</span>
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-sm text-gray-300">Live</span>
         </div>
       </div>
       
       <div className="space-y-3 max-h-96 overflow-y-auto">
         {trades.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <TrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-8 text-gray-400">
+            <TrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-500" />
             <p>No trades yet. Start following strategies to see live trades!</p>
           </div>
         ) : (
@@ -71,26 +76,26 @@ export const TradesFeed: React.FC<TradesFeedProps> = ({ trades, loading = false 
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium text-sm">
+                      <span className="font-medium text-sm text-white">
                         {formatToken(trade.tokenIn)}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-400" />
-                      <span className="font-medium text-sm">
+                      <span className="font-medium text-sm text-white">
                         {formatToken(trade.tokenOut)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-gray-400 mt-1">
                       {formatAmount(trade.amountIn)} → {formatAmount(trade.amountOut)}
                     </div>
                   </div>
                 </div>
                 
                 <div className="text-right">
-                  <div className="flex items-center space-x-1 text-xs text-gray-500">
+                  <div className="flex items-center space-x-1 text-xs text-gray-400">
                     <Clock className="w-3 h-3" />
                     <span>{formatTimeAgo(trade.timestamp)}</span>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="text-xs text-gray-500 mt-1">
                     {trade.leader.slice(0, 8)}...
                   </div>
                 </div>

@@ -16,8 +16,12 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
   isOwnStrategy = false 
 }) => {
   const formatVolume = (volume: string) => {
-    const vol = parseFloat(volume) / 1e6; // Assuming USDC decimals
-    return vol > 1000 ? `$${(vol / 1000).toFixed(1)}K` : `$${vol.toFixed(0)}`;
+    const vol = parseFloat(volume);
+    if (vol === 0) return '$0';
+    if (vol < 1000) return `$${vol.toFixed(2)}`;
+    if (vol < 1000000) return `$${(vol / 1000).toFixed(1)}K`;
+    if (vol < 1000000000) return `$${(vol / 1000000).toFixed(1)}M`;
+    return `$${(vol / 1000000000).toFixed(1)}B`;
   };
 
   const formatDate = (timestamp: number) => {
@@ -25,46 +29,48 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
   };
 
   return (
-    <div className="strategy-card">
-      <div className="flex items-start justify-between mb-4">
+    <div className="glass-card-premium p-6 neon-glow relative">
+      <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">{strategy.name}</h3>
-          <p className="text-sm text-gray-600 mb-3">{strategy.description}</p>
+          <h3 className="text-lg font-bold text-white mb-2">{strategy.name}</h3>
+          <p className="text-sm text-gray-400 mb-4 leading-relaxed">{strategy.description}</p>
           
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
               <span>{formatDate(strategy.createdAt)}</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               <Star className="w-4 h-4" />
               <span>{strategy.performanceFee / 100}% fee</span>
             </div>
           </div>
         </div>
         
-        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-          strategy.isActive ? 'status-active' : 'status-inactive'
+        <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+          strategy.isActive 
+            ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+            : 'bg-red-500/20 text-red-400 border border-red-500/30'
         }`}>
           {strategy.isActive ? 'Active' : 'Inactive'}
         </div>
       </div>
       
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-blue-50/50 p-3 rounded-lg">
-          <div className="flex items-center space-x-2 mb-1">
-            <Users className="w-4 h-4 text-blue-600" />
-            <span className="text-xs text-blue-600 font-medium">Followers</span>
+        <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl">
+          <div className="flex items-center space-x-2 mb-2">
+            <Users className="w-4 h-4 text-blue-400" />
+            <span className="text-xs text-blue-400 font-medium uppercase tracking-wide">Followers</span>
           </div>
-          <p className="text-lg font-bold text-blue-800">{strategy.totalFollowers}</p>
+          <p className="text-xl font-bold text-white">{strategy.totalFollowers}</p>
         </div>
         
-        <div className="bg-green-50/50 p-3 rounded-lg">
-          <div className="flex items-center space-x-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-green-600" />
-            <span className="text-xs text-green-600 font-medium">Volume</span>
+        <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl">
+          <div className="flex items-center space-x-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-green-400" />
+            <span className="text-xs text-green-400 font-medium uppercase tracking-wide">Volume</span>
           </div>
-          <p className="text-lg font-bold text-green-800">{formatVolume(strategy.totalVolume)}</p>
+          <p className="text-xl font-bold text-white">{formatVolume(strategy.totalVolume)}</p>
         </div>
       </div>
       
@@ -73,10 +79,10 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
           <button
             onClick={() => onFollow(strategy.leader, strategy.tokenId)}
             disabled={isFollowing}
-            className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
               isFollowing 
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                : 'btn-primary'
+                ? 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600' 
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
             }`}
           >
             {isFollowing ? 'Following' : 'Follow Strategy'}
@@ -84,13 +90,13 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
         )}
         
         {isOwnStrategy && (
-          <button className="flex-1 btn-secondary py-3">
+          <button className="flex-1 py-3 px-6 bg-gray-700/50 hover:bg-gray-700 text-white rounded-xl font-semibold transition-all duration-300 border border-gray-600 hover:border-gray-500">
             Manage Strategy
           </button>
         )}
         
-        <button className="px-4 py-3 bg-white/60 hover:bg-white/80 rounded-lg border border-purple-200 transition-all">
-          <TrendingUp className="w-5 h-5 text-purple-600" />
+        <button className="px-4 py-3 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl border border-purple-500/30 transition-all duration-300 hover:scale-105">
+          <TrendingUp className="w-5 h-5 text-purple-400" />
         </button>
       </div>
     </div>

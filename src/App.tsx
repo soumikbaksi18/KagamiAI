@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Header } from './components/Header';
-import { Dashboard } from './components/Dashboard';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { ProfessionalHeader } from './components/ProfessionalHeader';
+import { ProfessionalDashboard } from './components/ProfessionalDashboard';
+import { ProfessionalTradingInterface } from './components/ProfessionalTradingInterface';
 import { CreateStrategy } from './components/CreateStrategy';
 import { NetworkBanner } from './components/NetworkBanner';
 import TradeFlow from './components/TradeFlow';
@@ -35,49 +36,69 @@ function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-8 py-12 max-w-7xl">
-        <Header
-          isConnected={isConnected}
-          address={address}
-          onConnect={connect}
-          onDisconnect={disconnect}
+    <div className="min-h-screen bg-gray-900">
+      <ProfessionalHeader
+        isConnected={isConnected}
+        address={address}
+        onConnect={connect}
+        onDisconnect={disconnect}
+      />
+      
+      {isConnected && (
+        <NetworkBanner
+          currentChainId={chainId}
+          onSwitchNetwork={switchToLocalHardhat}
         />
-        
-        {isConnected && (
-          <NetworkBanner
-            currentChainId={chainId}
-            onSwitchNetwork={switchToLocalHardhat}
+      )}
+      
+      <Routes>
+        <Route path="/" element={
+          <ProfessionalDashboard
+            account={address}
+            isConnected={isConnected}
           />
-        )}
-        
-        <Routes>
-          <Route path="/" element={
-            <Dashboard
-              account={address}
-              isConnected={isConnected}
-            />
-          } />
-          <Route path="/tradeflow" element={<TradeFlow />} />
-          <Route path="/tradereflex" element={<TradeReflex />} />
-        </Routes>
-        
-        {/* Floating Action Button - only show on dashboard */}
-        {isConnected && location.pathname === "/" && (
-          <button
-            onClick={() => setShowCreateStrategy(true)}
-            className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group hover:scale-105 neon-glow"
-          >
-            <Plus className="w-6 h-6 text-white group-hover:rotate-90 transition-transform" />
-          </button>
-        )}
-        
-        <CreateStrategy
-          isOpen={showCreateStrategy}
-          onClose={() => setShowCreateStrategy(false)}
-          onSubmit={handleCreateStrategy}
-        />
-      </div>
+        } />
+        <Route path="/trading" element={
+          <div className="min-h-screen bg-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <ProfessionalTradingInterface
+                account={address}
+                isLeader={true}
+              />
+            </div>
+          </div>
+        } />
+        <Route path="/tradeflow" element={
+          <div className="min-h-screen bg-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <TradeFlow />
+            </div>
+          </div>
+        } />
+        <Route path="/tradereflex" element={
+          <div className="min-h-screen bg-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <TradeReflex />
+            </div>
+          </div>
+        } />
+      </Routes>
+      
+      {/* Floating Action Button - only show on dashboard */}
+      {isConnected && location.pathname === "/" && (
+        <button
+          onClick={() => setShowCreateStrategy(true)}
+          className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group hover:scale-105"
+        >
+          <Plus className="w-6 h-6 text-white group-hover:rotate-90 transition-transform" />
+        </button>
+      )}
+      
+      <CreateStrategy
+        isOpen={showCreateStrategy}
+        onClose={() => setShowCreateStrategy(false)}
+        onSubmit={handleCreateStrategy}
+      />
     </div>
   );
 }
