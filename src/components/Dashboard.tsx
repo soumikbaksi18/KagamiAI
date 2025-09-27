@@ -5,6 +5,7 @@ import { TradesFeed } from './TradesFeed';
 import { PortfolioOverview } from './PortfolioOverview';
 import { FaucetPanel } from './FaucetPanel';
 import { TokenBalances } from './TokenBalances';
+import { SetupGuide } from './SetupGuide';
 import { useStrategies } from '../hooks/useStrategies';
 import { useTrades } from '../hooks/useTrades';
 import { Strategy, TradeEvent } from '../types/contracts';
@@ -43,30 +44,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
 
   if (!isConnected) {
     return (
-      <div className="text-center py-20">
-        <div className="glass-card p-12 max-w-md mx-auto">
-          <TrendingUp className="w-16 h-16 mx-auto mb-6 text-purple-400" />
-          <h2 className="text-2xl font-bold gradient-text mb-4">
-            Welcome to PookieFI
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Connect your wallet to start copy trading with the best DeFi strategies
-          </p>
-          <div className="space-y-3 text-sm text-gray-500">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span>Follow top performing traders</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              <span>Automatic trade mirroring</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span>Real-time performance tracking</span>
-            </div>
-          </div>
-        </div>
+      <div className="py-8">
+        <SetupGuide />
       </div>
     );
   }
