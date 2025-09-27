@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wallet, User, TrendingUp, BarChart3, Users } from 'lucide-react';
+import { Wallet, User, TrendingUp, BarChart3, Users, Zap } from 'lucide-react';
 
 interface HeaderProps {
   isConnected: boolean;
@@ -58,17 +58,28 @@ export const Header: React.FC<HeaderProps> = ({
               <BarChart3 className="w-4 h-4" />
               <span>TradeFlow</span>
             </Link>
-            <Link
-              to="/tradereflex"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                location.pathname === "/tradereflex"
-                  ? "bg-pink-500/20 text-pink-300 border border-pink-500/30 neon-glow-pink"
-                  : "text-gray-400 hover:text-white hover:bg-pink-500/10 border border-transparent"
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              <span>TradeReflex</span>
-            </Link>
+                  <Link
+                    to="/tradereflex"
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                      location.pathname === "/tradereflex"
+                        ? "bg-pink-500/20 text-pink-300 border border-pink-500/30 neon-glow-pink"
+                        : "text-gray-400 hover:text-white hover:bg-pink-500/10 border border-transparent"
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>TradeReflex</span>
+                  </Link>
+                  <Link
+                    to="/x402t"
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                      location.pathname === "/x402t"
+                        ? "bg-orange-500/20 text-orange-300 border border-orange-500/30 neon-glow"
+                        : "text-gray-400 hover:text-white hover:bg-orange-500/10 border border-transparent"
+                    }`}
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>x402T</span>
+                  </Link>
           </nav>
         </div>
         

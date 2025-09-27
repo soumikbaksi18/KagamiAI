@@ -6,6 +6,7 @@ import { CreateStrategy } from './components/CreateStrategy';
 import { NetworkBanner } from './components/NetworkBanner';
 import TradeFlow from './components/TradeFlow';
 import TradeReflex from './components/TradeReflex';
+import X402Test from './components/X402Test';
 import { useWallet } from './hooks/useWallet';
 import { useContracts } from './hooks/useContracts';
 import { Plus } from 'lucide-react';
@@ -51,16 +52,17 @@ function AppLayout() {
           />
         )}
         
-        <Routes>
-          <Route path="/" element={
-            <Dashboard
-              account={address}
-              isConnected={isConnected}
-            />
-          } />
-          <Route path="/tradeflow" element={<TradeFlow />} />
-          <Route path="/tradereflex" element={<TradeReflex />} />
-        </Routes>
+                <Routes>
+                  <Route path="/" element={
+                    <Dashboard
+                      account={address}
+                      isConnected={isConnected}
+                    />
+                  } />
+                  <Route path="/tradeflow" element={<TradeFlow />} />
+                  <Route path="/tradereflex" element={<TradeReflex />} />
+                  <Route path="/x402t" element={<X402Test />} />
+                </Routes>
         
         {/* Floating Action Button - only show on dashboard */}
         {isConnected && location.pathname === "/" && (
