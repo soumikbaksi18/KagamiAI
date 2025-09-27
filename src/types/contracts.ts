@@ -5,7 +5,8 @@ export const CONTRACTS = {
   TestETH: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",     // From TestETH deployment  
   StrategyNFT: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", // From minimal deployment
   CopyRelay: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",   // From minimal deployment
-  CopyHook: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"    // Deployed CopyHook
+  CopyHook: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",   // Deployed CopyHook
+  CopyTradingHookV4: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853" // Deployed v4 Hook
 } as const;
 
 // Network configuration

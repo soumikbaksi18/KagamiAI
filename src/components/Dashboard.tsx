@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Users, Activity, DollarSign, PieChart } from 'lucide-react';
+import { TrendingUp, Users, Activity, DollarSign, PieChart, Zap } from 'lucide-react';
 import { StrategyCard } from './StrategyCard';
 import { TradesFeed } from './TradesFeed';
 import { PortfolioOverview } from './PortfolioOverview';
@@ -7,6 +7,7 @@ import { FaucetPanel } from './FaucetPanel';
 import { TokenBalances } from './TokenBalances';
 import { SetupGuide } from './SetupGuide';
 import { TradeInterface } from './TradeInterface';
+import { V4PoolInterface } from './V4PoolInterface';
 import { ToastContainer } from './Toast';
 import { useStrategies } from '../hooks/useStrategies';
 import { useTrades } from '../hooks/useTrades';
@@ -19,7 +20,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) => {
-  const [activeTab, setActiveTab] = useState<'discover' | 'following' | 'my-strategies' | 'portfolio' | 'trade'>('discover');
+  const [activeTab, setActiveTab] = useState<'discover' | 'following' | 'my-strategies' | 'portfolio' | 'trade' | 'v4-pools'>('discover');
   const [myStrategiesSubTab, setMyStrategiesSubTab] = useState<'created' | 'joined'>('created');
   
   // Use custom hooks for contract data
@@ -29,8 +30,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
   
   const loading = strategiesLoading || tradesLoading;
 
-  // Check if current user is a leader
-  const isLeader = strategies.some(strategy => strategy.leader === account);
+  // Check if current user is a leader (case-insensitive comparison)
+  const isLeader = strategies.some(strategy => 
+    strategy.leader?.toLowerCase() === account?.toLowerCase()
+  );
   
   // Get strategies created by user
   const createdStrategies = strategies.filter(strategy => 
@@ -160,6 +163,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
             { key: 'following', label: 'Following', icon: Users },
             { key: 'my-strategies', label: 'My Strategies', icon: Activity },
             { key: 'trade', label: 'Trade', icon: DollarSign },
+            { key: 'v4-pools', label: '🦄 v4 Pools', icon: Zap },
             { key: 'portfolio', label: 'Portfolio', icon: PieChart }
           ].map(({ key, label, icon: Icon }) => (
             <button
@@ -202,6 +206,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
             <FaucetPanel account={account} />
           </div>
         </div>
+      ) : activeTab === 'v4-pools' ? (
+        <V4PoolInterface account={account} isLeader={isLeader} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Strategies Grid */}
@@ -242,12 +248,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ account, isConnected }) =>
               ) : (
                 strategies
                   .filter(strategy => {
-                    console.log('Filtering strategy:', strategy, 'activeTab:', activeTab, 'account:', account);
                     if (activeTab === 'my-strategies') {
                       if (myStrategiesSubTab === 'created') {
-                        const isOwner = strategy.leader?.toLowerCase() === account?.toLowerCase();
-                        console.log('Is owner check:', isOwner, strategy.leader, 'vs', account);
-                        return isOwner;
+                        return strategy.leader?.toLowerCase() === account?.toLowerCase();
                       } else {
                         // 'joined' tab - show strategies user has subscribed to
                         // For now, show strategies where user is not the owner but has followers (mock)

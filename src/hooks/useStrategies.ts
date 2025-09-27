@@ -22,7 +22,14 @@ export const useStrategies = (account?: string) => {
       const filter = strategyNFT.filters.StrategyCreated();
       const events = await strategyNFT.queryFilter(filter, 0); // From genesis block to get all events
       
-      console.log('Strategy events found:', events.length, events);
+      console.log('Strategy events found:', events.length);
+      events.forEach((event, i) => {
+        console.log(`Event ${i}:`, {
+          tokenId: event.args.tokenId.toString(),
+          leader: event.args.leader,
+          name: event.args.name
+        });
+      });
       
       if (events.length === 0) {
         console.log('No strategies found on-chain, using mock data');

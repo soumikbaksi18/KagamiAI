@@ -6,6 +6,7 @@ import { CONTRACTS } from '../types/contracts';
 const COPY_RELAY_ABI = [
   "function subscribe(address leader, uint256 subscriptionFeePaid) external payable",
   "function unsubscribe(address leader) external",
+  "function executeTrade(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) external",
   "function getSubscription(address follower, address leader) external view returns (tuple(address follower, address leader, uint256 strategyId, uint256 subscriptionFee, uint256 performanceFee, bool isActive, uint256 subscribedAt, uint256 lastTradeTime))",
   "function totalSubscriptions() external view returns (uint256)",
   "function totalTrades() external view returns (uint256)",
@@ -31,6 +32,16 @@ const TEST_TOKEN_ABI = [
   "function name() external view returns (string)"
 ];
 
+const COPY_TRADING_HOOK_V4_ABI = [
+  "function triggerCopyTrade(address leader, address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) external",
+  "function isCopyTradingEnabled(address tokenA, address tokenB) external view returns (bool)",
+  "function registerPool(bytes32 poolId, bool enabled) external",
+  "function beforeSwap(address trader, address tokenIn, address tokenOut, uint256 amountIn) external returns (bool)",
+  "function afterSwap(address trader, address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) external",
+  "event LeaderTradeDetected(address indexed leader, address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut)",
+  "event CopyTradeExecuted(address indexed leader, address indexed follower, uint256 amountIn, uint256 amountOut)"
+];
+
 export const useContracts = () => {
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
@@ -38,6 +49,7 @@ export const useContracts = () => {
   const [strategyNFT, setStrategyNFT] = useState<ethers.Contract | null>(null);
   const [testUSDC, setTestUSDC] = useState<ethers.Contract | null>(null);
   const [testETH, setTestETH] = useState<ethers.Contract | null>(null);
+  const [copyTradingHookV4, setCopyTradingHookV4] = useState<ethers.Contract | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -86,12 +98,19 @@ export const useContracts = () => {
               TEST_TOKEN_ABI,
               signer
             );
+
+            const copyTradingHookV4Contract = new ethers.Contract(
+              CONTRACTS.CopyTradingHookV4,
+              COPY_TRADING_HOOK_V4_ABI,
+              signer
+            );
             
             if (mounted) {
               setCopyRelay(copyRelayContract);
               setStrategyNFT(strategyNFTContract);
               setTestUSDC(testUSDCContract);
               setTestETH(testETHContract);
+              setCopyTradingHookV4(copyTradingHookV4Contract);
             }
           } else {
             console.warn('Wrong network detected. Current:', chainIdNumber, 'Expected: 31337');
@@ -240,6 +259,19 @@ export const useContracts = () => {
     }
   };
 
+  const executeTrade = async (tokenIn: string, tokenOut: string, amountIn: string, amountOut: string) => {
+    if (!copyRelay) throw new Error('Contracts not initialized');
+    
+    try {
+      const tx = await copyRelay.executeTrade(tokenIn, tokenOut, amountIn, amountOut);
+      await tx.wait();
+      return tx;
+    } catch (error) {
+      console.error('Error executing trade:', error);
+      throw error;
+    }
+  };
+
   return {
     provider,
     signer,
@@ -247,6 +279,7 @@ export const useContracts = () => {
     strategyNFT,
     testUSDC,
     testETH,
+    copyTradingHookV4,
     subscribeToStrategy,
     unsubscribeFromStrategy,
     createStrategy,
@@ -254,6 +287,7 @@ export const useContracts = () => {
     getSubscription,
     mintTestUSDC,
     mintTestETH,
-    getTokenBalance
+    getTokenBalance,
+    executeTrade
   };
 };
