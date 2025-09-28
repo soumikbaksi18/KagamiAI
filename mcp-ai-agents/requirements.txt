@@ -1,0 +1,26 @@
+# Core FastAPI and server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Database and ORM
+sqlmodel>=0.0.14
+psycopg2-binary>=2.9.9
+psycopg[binary]>=3.0.0
+
+# Configuration and environment
+python-dotenv>=1.0.1
+
+# HTTP client for API calls
+httpx>=0.25.0
+
+# Task scheduling
+apscheduler>=3.10.0
+
+# MCP (Model Context Protocol) - this will pull in compatible versions
+modelcontextprotocol>=0.1.0
+
+# AI/ML - compatible with MCP requirements
+openai>=1.60.1
+
+# Data validation - must be compatible with airtrain (MCP dependency)
+pydantic>=2.10.6
