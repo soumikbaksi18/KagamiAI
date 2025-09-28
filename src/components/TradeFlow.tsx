@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import WorkflowDiagram from "./WorkflowDiagram";
 import SimulationModal from "./SimulationModal";
+import BacktestModal from "./BacktestModal";
 
 // --- Minimal in-file UI primitives (shadcn-like) ---
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
@@ -156,6 +157,7 @@ export default function TradeFlow() {
   const [risk, setRisk] = useState<string>("All");
   const [activeTab, setActiveTab] = useState<"workflow" | "json">("workflow");
   const [isSimulationOpen, setIsSimulationOpen] = useState(false);
+  const [isBacktestOpen, setIsBacktestOpen] = useState(false);
   
   // Strategy configuration state
   const [strategyConfig, setStrategyConfig] = useState({
@@ -394,7 +396,9 @@ export default function TradeFlow() {
               <BarChart3 className="h-4 w-4" /> Simulate Strategy
             </Button>
             <Button><ArrowRight className="h-4 w-4" /> Deploy Bot</Button>
-            <Button variant="outline"><CalendarClock className="h-4 w-4" /> Schedule Backtest</Button>
+            <Button variant="outline" onClick={() => setIsBacktestOpen(true)}>
+              <CalendarClock className="h-4 w-4" /> Schedule Backtest
+            </Button>
           </div>
         </div>
       </Card>
@@ -403,6 +407,13 @@ export default function TradeFlow() {
       <SimulationModal
         isOpen={isSimulationOpen}
         onClose={() => setIsSimulationOpen(false)}
+        strategy={strategyConfig}
+      />
+      
+      {/* Backtest Modal */}
+      <BacktestModal
+        isOpen={isBacktestOpen}
+        onClose={() => setIsBacktestOpen(false)}
         strategy={strategyConfig}
       />
     </div>

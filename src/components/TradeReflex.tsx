@@ -9,7 +9,10 @@ import {
   Play,
   Plus,
   Users,
+  BarChart3,
+  CalendarClock,
 } from "lucide-react";
+import BacktestModal from "./BacktestModal";
 
 // --- Minimal in-file UI primitives (shadcn-like) ---
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
@@ -122,6 +125,8 @@ const fmtUSD = (v: number) => v.toLocaleString(undefined, { style: "currency", c
 export default function TradeReflex() {
   const [q, setQ] = useState("");
   const [risk, setRisk] = useState("All");
+  const [isBacktestOpen, setIsBacktestOpen] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   const visible = useMemo(() => MOCK_STRATEGIES.filter((s) => (risk === "All" || s.risk === risk) && s.name.toLowerCase().includes(q.toLowerCase())), [q, risk]);
 
   return (
@@ -153,7 +158,15 @@ export default function TradeReflex() {
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <Button variant="outline"><Copy className="h-4 w-4" /> Subscribe</Button>
-                  <Button variant="ghost"><Play className="h-4 w-4" /> Backtest</Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      setSelectedStrategy(s);
+                      setIsBacktestOpen(true);
+                    }}
+                  >
+                    <BarChart3 className="h-4 w-4" /> Backtest
+                  </Button>
                 </div>
                 <div className="mt-3 text-xs text-gray-400">Includes: {s.blocks.map((b) => b.kind).join(" · ")}</div>
                 <div className="mt-2 text-xs text-gray-500">{s.followers.toLocaleString()} followers</div>
@@ -239,6 +252,33 @@ export default function TradeReflex() {
           <li>Set withdraw/kill‑switch permissions. Enable 2FA for strategy edits. Keep approvals minimal.</li>
         </ul>
       </Card>
+      
+      {/* Backtest Modal */}
+      {selectedStrategy && (
+        <BacktestModal
+          isOpen={isBacktestOpen}
+          onClose={() => {
+            setIsBacktestOpen(false);
+            setSelectedStrategy(null);
+          }}
+          strategy={{
+            name: selectedStrategy.name,
+            type: selectedStrategy.blocks[0]?.kind === "AMM_LP" ? "AMM_LP" : 
+                  selectedStrategy.blocks[0]?.kind === "TWAP" ? "TWAP" :
+                  selectedStrategy.blocks[0]?.kind === "LENDING" ? "LENDING" :
+                  selectedStrategy.blocks[0]?.kind === "YIELD_TOKENIZE" ? "PENDLE" : "ONEINCH_LOP",
+            riskLevel: selectedStrategy.risk === "Conservative" ? "LOW" : 
+                      selectedStrategy.risk === "Balanced" ? "MEDIUM" : "HIGH",
+            timeHorizon: "MEDIUM",
+            tokens: selectedStrategy.blocks[0]?.kind === "AMM_LP" ? ["ETH", "USDC"] : 
+                    selectedStrategy.blocks[0]?.kind === "TWAP" ? ["BTC"] : ["ETH"],
+            amount: "1000",
+            slippage: "0.5",
+            gasPrice: "20",
+            conditions: ["Price above 2000", "Volume > 1M", "RSI < 70"]
+          }}
+        />
+      )}
     </div>
   );
 }
