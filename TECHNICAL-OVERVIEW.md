@@ -1,4 +1,4 @@
-# PookieFI: Technical Architecture & Integrations
+#Technical Architecture & Integrations
 
 ## 🏗️ **System Architecture**
 
