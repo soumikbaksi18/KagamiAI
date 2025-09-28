@@ -414,8 +414,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
       
       // Show loading toast
       addToast({
-        id: Date.now().toString(),
         type: 'info',
+        title: 'Publishing Strategy',
         message: 'Publishing strategy...'
       });
 
@@ -448,7 +448,6 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
 
       // Success toast
       addToast({
-        id: Date.now().toString(),
         type: 'success',
         message: `Strategy "${strategyData.name}" published successfully! You are now a strategy leader.`
       });
@@ -462,9 +461,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
       console.error('❌ Strategy publishing failed:', error);
       
       addToast({
-        id: Date.now().toString(),
         type: 'error',
-        message: `Strategy publishing failed: ${error.message || 'Unknown error'}`
+        message: `Strategy publishing failed: ${(error as any)?.message || 'Unknown error'}`
       });
     }
   };
@@ -482,7 +480,6 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
       
       // Show loading toast
       addToast({
-        id: Date.now().toString(),
         type: 'info',
         message: 'Creating TWAP bot...'
       });
@@ -541,7 +538,6 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
 
       // Success toast
       addToast({
-        id: Date.now().toString(),
         type: 'success',
         message: `TWAP bot created successfully! ${twapData.intervals} intervals over ${twapData.intervals * twapData.intervalHours} hours.`
       });
@@ -555,9 +551,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
       console.error('❌ TWAP creation failed:', error);
       
       addToast({
-        id: Date.now().toString(),
         type: 'error',
-        message: `TWAP creation failed: ${error.message || 'Unknown error'}`
+        message: `TWAP creation failed: ${(error as any)?.message || 'Unknown error'}`
       });
     }
   };
@@ -592,7 +587,6 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
         
         // Show success toast
         addToast({
-          id: Date.now().toString(),
           type: 'success',
           message: `Trade executed successfully! ${side === 'buy' ? 'Bought' : 'Sold'} ${amount} tokens.`
         });
@@ -649,7 +643,7 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
             });
 
             // Update pool data with new reserves
-            setPool(prevPool => ({
+            setPool((prevPool: any) => ({
               ...prevPool,
               tvl: tvlFormatted,
               volume24h: volumeFormatted,
@@ -696,9 +690,8 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
       
       // Show error toast
       addToast({
-        id: Date.now().toString(),
         type: 'error',
-        message: `Trade failed: ${error.message || 'Unknown error occurred'}`
+        message: `Trade failed: ${(error as any)?.message || 'Unknown error occurred'}`
       });
       
     } finally {
@@ -710,9 +703,79 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
     return (
       <div className="min-h-screen bg-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="bg-gray-800 h-16 rounded-lg"></div>
-            <div className="bg-gray-800 h-96 rounded-lg"></div>
+          {/* Loading Header */}
+          <div className="mb-8">
+            <div className="animate-pulse">
+              <div className="h-6 bg-gray-800 rounded-lg w-32 mb-6"></div>
+              <div className="glass-card-premium p-6 neon-glow">
+                <div className="flex items-center space-x-4">
+                  <div className="flex -space-x-2">
+                    <div className="w-16 h-16 bg-gray-700 rounded-full"></div>
+                    <div className="w-16 h-16 bg-gray-700 rounded-full"></div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-8 bg-gray-700 rounded-lg w-48 mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded-lg w-64"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Loading Animation */}
+          <div className="glass-card-premium p-8 neon-glow text-center mb-8">
+            <div className="relative mb-6">
+              <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+              <div className="absolute inset-0 w-16 h-16 border-4 border-purple-500/20 border-b-purple-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+            </div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+              Loading Trading Data
+            </h2>
+            <p className="text-gray-400">Fetching real-time pool information...</p>
+          </div>
+
+          {/* Loading Skeletons */}
+          <div className="space-y-6">
+            {/* Stats Cards Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="glass-card-premium p-6 neon-glow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 bg-gray-700 rounded-xl"></div>
+                      <div className="h-4 bg-gray-700 rounded w-16"></div>
+                    </div>
+                    <div className="h-4 bg-gray-700 rounded w-20 mb-2"></div>
+                    <div className="h-8 bg-gray-700 rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-gray-700 rounded w-16"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chart and Trading Panel Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-3 space-y-6">
+                <div className="animate-pulse">
+                  <div className="glass-card-premium p-6 neon-glow">
+                    <div className="h-6 bg-gray-700 rounded w-32 mb-4"></div>
+                    <div className="h-96 bg-gray-800 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-2 space-y-6">
+                <div className="animate-pulse">
+                  <div className="glass-card-premium p-6 neon-glow">
+                    <div className="h-6 bg-gray-700 rounded w-32 mb-4"></div>
+                    <div className="space-y-4">
+                      <div className="h-12 bg-gray-700 rounded-lg"></div>
+                      <div className="h-12 bg-gray-700 rounded-lg"></div>
+                      <div className="h-32 bg-gray-700 rounded-lg"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -723,97 +786,136 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
     <div className="min-h-screen bg-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => navigate('/trading')}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white mb-4"
+            className="flex items-center space-x-2 text-gray-400 hover:text-white mb-6 group transition-all duration-300"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span>Back to Pools</span>
           </button>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                {pool?.token0.symbol}/{pool?.token1.symbol}
-              </h1>
-              <p className="text-gray-400">
-                {pool?.token0.name}/{pool?.token1.name} • {pool?.feeTier} Fee
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* Leader Mode Toggle */}
-              <div className="flex items-center space-x-3">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={leaderMode}
-                    onChange={(e) => setLeaderMode(e.target.checked)}
-                    className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-gray-300">Leader Mode</span>
-                </label>
-                {leaderMode && (
-                  <div className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-md border border-purple-500/30">
-                    Active
+          <div className="glass-card-premium p-6 neon-glow">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Token Icons */}
+                <div className="flex -space-x-2">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-gray-800 shadow-lg">
+                    {pool?.token0.symbol?.[0] || 'T'}
                   </div>
-                )}
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-gray-800 shadow-lg">
+                    {pool?.token1.symbol?.[0] || 'U'}
+                  </div>
+                </div>
+                
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                    {pool?.token0.symbol}/{pool?.token1.symbol}
+                  </h1>
+                  <div className="flex items-center space-x-4">
+                    <p className="text-gray-400 text-lg">
+                      {pool?.token0.name}/{pool?.token1.name}
+                    </p>
+                    <div className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-full border border-blue-500/30 font-medium">
+                      {pool?.feeTier} Fee
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <button
-                onClick={() => {
-                  console.log('🔄 Manual refresh triggered');
-                  setLoading(true);
-                  fetchPoolData();
-                }}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-              >
-                <span>Refresh Data</span>
-              </button>
-              <button className="p-2 text-gray-400 hover:text-white">
-                <Bell className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-white">
-                <Settings className="w-5 h-5" />
-              </button>
+              <div className="flex items-center space-x-4">
+                {/* Leader Mode Toggle */}
+                <div className="glass-card-premium px-4 py-3 neon-glow">
+                  <div className="flex items-center space-x-3">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={leaderMode}
+                        onChange={(e) => setLeaderMode(e.target.checked)}
+                        className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+                      />
+                      <span className="text-sm text-gray-300 font-medium">Leader Mode</span>
+                    </label>
+                    {leaderMode && (
+                      <div className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 text-xs rounded-full border border-purple-500/30 animate-pulse font-medium">
+                        🔥 Active
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      console.log('🔄 Manual refresh triggered');
+                      setLoading(true);
+                      fetchPoolData();
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+                  >
+                    <span>Refresh</span>
+                  </button>
+                  <button className="p-3 text-gray-400 hover:text-white bg-gray-700/30 hover:bg-gray-600/30 rounded-xl transition-all duration-300">
+                    <Bell className="w-5 h-5" />
+                  </button>
+                  <button className="p-3 text-gray-400 hover:text-white bg-gray-700/30 hover:bg-gray-600/30 rounded-xl transition-all duration-300">
+                    <Settings className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Real Data Indicator */}
         {poolId?.startsWith('real-') && (
-          <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold text-green-400">🚀 Live Contract Data</span>
-              <span className="text-sm text-green-300">• Real-time data from deployed AMM contract • Volume & APR update with trades</span>
+          <div className="mb-6">
+            <div className="glass-card-premium p-4 neon-glow border-l-4 border-green-500">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-green-400 mb-1">🚀 Live Contract Data</h3>
+                  <p className="text-gray-300 text-sm">
+                    Real-time data from deployed AMM contract • Volume & APR update with trades
+                  </p>
+                </div>
+                <div className="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30 animate-pulse font-medium">
+                  LIVE
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Reference Pool Notice */}
         {pool?.isReference && (
-          <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2"></div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-yellow-400">📊 Reference Pool - Static Data</p>
-                <p className="text-sm text-yellow-300 mt-1">
-                  This pool shows reference data only. For live trading with real volume/APR updates, visit:
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button 
-                    onClick={() => navigate('/trading/real-tusdc-tusdt')}
-                    className="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30 hover:bg-green-500/30 transition-colors"
-                  >
-                    🔄 TUSDC/TUSDT Real Pool
-                  </button>
-                  <button 
-                    onClick={() => navigate('/trading/real-tusdc-teth')}
-                    className="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30 hover:bg-green-500/30 transition-colors"
-                  >
-                    🔄 TUSDC/TETH Real Pool
-                  </button>
+          <div className="mb-6">
+            <div className="glass-card-premium p-4 neon-glow border-l-4 border-yellow-500">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-yellow-400 mb-2">📊 Reference Pool - Static Data</h3>
+                  <p className="text-gray-300 text-sm mb-3">
+                    This pool shows reference data only. For live trading with real volume/APR updates, visit:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      onClick={() => navigate('/trading/real-tusdc-tusdt')}
+                      className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 text-xs rounded-full border border-green-500/30 hover:bg-green-500/30 transition-all duration-300 font-medium"
+                    >
+                      🔄 TUSDC/TUSDT Real Pool
+                    </button>
+                    <button 
+                      onClick={() => navigate('/trading/real-tusdc-teth')}
+                      className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 text-xs rounded-full border border-green-500/30 hover:bg-green-500/30 transition-all duration-300 font-medium"
+                    >
+                      🔄 TUSDC/TETH Real Pool
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -821,28 +923,57 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">Price</div>
-            <div className="text-2xl font-bold text-white">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="glass-card-premium p-6 neon-glow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-sm text-green-400 font-medium">{pool?.priceChange24h || '+0.1%'}</div>
+            </div>
+            <div className="text-sm text-gray-400 mb-2 uppercase tracking-wide">Current Price</div>
+            <div className="text-2xl font-bold text-white mb-1">
               {realTimeData?.price || pool?.currentPrice || '0.00055'}
             </div>
-            <div className="text-sm text-green-400">{pool?.priceChange24h || '+0.1% (24h)'}</div>
+            <div className="text-xs text-gray-500">24h Change</div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">24h Volume</div>
-            <div className="text-2xl font-bold text-white">{realTimeData?.volume24h || pool?.volume24h}</div>
-            <div className="text-sm text-green-400">{realTimeData?.volumeChange24h || '+15.2%'}</div>
+          
+          <div className="glass-card-premium p-6 neon-glow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-sm text-green-400 font-medium">{realTimeData?.volumeChange24h || '+15.2%'}</div>
+            </div>
+            <div className="text-sm text-gray-400 mb-2 uppercase tracking-wide">24h Volume</div>
+            <div className="text-2xl font-bold text-white mb-1">
+              {realTimeData?.volume24h || pool?.volume24h}
+            </div>
+            <div className="text-xs text-gray-500">Trading Volume</div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">TVL</div>
-            <div className="text-2xl font-bold text-white">{pool?.tvl}</div>
-            <div className="text-sm text-gray-400">Total Value Locked</div>
+          
+          <div className="glass-card-premium p-6 neon-glow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">₿</span>
+              </div>
+              <div className="text-sm text-blue-400 font-medium">Locked</div>
+            </div>
+            <div className="text-sm text-gray-400 mb-2 uppercase tracking-wide">Total TVL</div>
+            <div className="text-2xl font-bold text-white mb-1">{pool?.tvl}</div>
+            <div className="text-xs text-gray-500">Total Value Locked</div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">APR</div>
-            <div className="text-2xl font-bold text-green-400">{pool?.apr}</div>
-            <div className="text-sm text-gray-400">Annual Percentage Rate</div>
+          
+          <div className="glass-card-premium p-6 neon-glow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">%</span>
+              </div>
+              <div className="text-sm text-green-400 font-medium">Annual</div>
+            </div>
+            <div className="text-sm text-gray-400 mb-2 uppercase tracking-wide">APR</div>
+            <div className="text-2xl font-bold text-green-400 mb-1">{pool?.apr}</div>
+            <div className="text-xs text-gray-500">Yield Rate</div>
           </div>
         </div>
 
@@ -850,16 +981,21 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
           {/* Chart Section - 60% width */}
           <div className="lg:col-span-3 space-y-6">
             {/* Chart Controls */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <h3 className="text-lg font-semibold text-white">Price Chart</h3>
-                  {isUpdatingOrderBook && (
-                    <div className="flex items-center space-x-2 text-blue-400">
-                      <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-sm">Updating...</span>
-                    </div>
-                  )}
+            <div className="glass-card-premium p-6 neon-glow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Price Chart</h3>
+                    {isUpdatingOrderBook && (
+                      <div className="flex items-center space-x-2 text-blue-400">
+                        <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm">Updating...</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex space-x-2">
                 {[
@@ -871,10 +1007,10 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                   <button
                     key={tf.key}
                     onClick={() => setTimeframe(tf.key as any)}
-                    className={`px-3 py-1 rounded text-sm transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       timeframe === tf.key
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
                     }`}
                   >
                     {tf.label}
@@ -908,19 +1044,26 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
             </div>
 
             {/* Order Book */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Order Book</h3>
+            <div className="glass-card-premium p-6 neon-glow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-red-500 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">📊</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Order Book</h3>
+                    {poolId?.startsWith('real-') && !isUpdatingOrderBook && (
+                      <div className="flex items-center space-x-2 text-green-400">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium">Live Data</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 {isUpdatingOrderBook && (
                   <div className="flex items-center space-x-2 text-blue-400">
                     <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-sm">Updating...</span>
-                  </div>
-                )}
-                {poolId?.startsWith('real-') && !isUpdatingOrderBook && (
-                  <div className="flex items-center space-x-1 text-green-400">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-xs">Live Data</span>
                   </div>
                 )}
               </div>
@@ -960,8 +1103,13 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
           {/* Right Panel - 40% width */}
           <div className="lg:col-span-2 space-y-6">
             {/* Trading Form */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-              <h3 className="text-lg font-semibold text-white mb-4">Place Order</h3>
+            <div className="glass-card-premium p-6 neon-glow">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">⚡</span>
+                </div>
+                <h3 className="text-xl font-bold text-white">Place Order</h3>
+              </div>
               
               {/* Trading Mode Tabs */}
               <div className="grid grid-cols-2 gap-2 mb-4">
@@ -1240,12 +1388,12 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
                   {/* Submit Button */}
                   <button
                     onClick={handleTrade}
-                    disabled={!amount || isSubmitting || tradingMode === 'ai'}
+                    disabled={!amount || isSubmitting}
                     className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
                       side === 'buy'
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-red-600 hover:bg-red-700 text-white'
-                    } ${(!amount || isSubmitting || tradingMode === 'ai') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    } ${(!amount || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? 'Processing...' : `${side === 'buy' ? 'Buy' : 'Sell'} ${pool?.token0.symbol}`}
                   </button>
@@ -1270,8 +1418,18 @@ export const TradingDetail: React.FC<TradingDetailProps> = ({ isLeader }) => {
             </div>
 
             {/* Recent Trades */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-              <h3 className="text-lg font-semibold text-white mb-4">Recent Trades</h3>
+            <div className="glass-card-premium p-6 neon-glow">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Recent Trades</h3>
+                {poolId?.startsWith('real-') && (
+                  <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30 animate-pulse font-medium">
+                    LIVE
+                  </div>
+                )}
+              </div>
               <div className="space-y-2">
                 {recentTrades.map((trade, index) => (
                   <div key={index} className="flex justify-between items-center text-sm">
