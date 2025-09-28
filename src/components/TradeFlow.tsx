@@ -31,6 +31,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import WorkflowDiagram from "./WorkflowDiagram";
+import SimulationModal from "./SimulationModal";
 
 // --- Minimal in-file UI primitives (shadcn-like) ---
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
@@ -154,6 +155,7 @@ export default function TradeFlow() {
   const [onlyLive, setOnlyLive] = useState(true);
   const [risk, setRisk] = useState<string>("All");
   const [activeTab, setActiveTab] = useState<"workflow" | "json">("workflow");
+  const [isSimulationOpen, setIsSimulationOpen] = useState(false);
   
   // Strategy configuration state
   const [strategyConfig, setStrategyConfig] = useState({
@@ -388,11 +390,21 @@ export default function TradeFlow() {
           )}
           
           <div className="flex items-center gap-2">
+            <Button onClick={() => setIsSimulationOpen(true)}>
+              <BarChart3 className="h-4 w-4" /> Simulate Strategy
+            </Button>
             <Button><ArrowRight className="h-4 w-4" /> Deploy Bot</Button>
             <Button variant="outline"><CalendarClock className="h-4 w-4" /> Schedule Backtest</Button>
           </div>
         </div>
       </Card>
+      
+      {/* Simulation Modal */}
+      <SimulationModal
+        isOpen={isSimulationOpen}
+        onClose={() => setIsSimulationOpen(false)}
+        strategy={strategyConfig}
+      />
     </div>
   );
 }
