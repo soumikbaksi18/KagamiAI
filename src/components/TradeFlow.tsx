@@ -27,7 +27,10 @@ import {
   Sparkles,
   Users,
   Zap,
+  Code,
+  GitBranch,
 } from "lucide-react";
+import WorkflowDiagram from "./WorkflowDiagram";
 
 // --- Minimal in-file UI primitives (shadcn-like) ---
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = "", children }) => (
@@ -150,6 +153,20 @@ export default function TradeFlow() {
   const [q, setQ] = useState("");
   const [onlyLive, setOnlyLive] = useState(true);
   const [risk, setRisk] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<"workflow" | "json">("workflow");
+  
+  // Strategy configuration state
+  const [strategyConfig, setStrategyConfig] = useState({
+    name: "My AI LP + TWAP bot",
+    type: "AMM_LP" as "AMM_LP" | "TWAP" | "LENDING" | "PENDLE" | "ONEINCH_LOP",
+    riskLevel: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH",
+    timeHorizon: "MEDIUM" as "SHORT" | "MEDIUM" | "LONG",
+    tokens: ["ETH", "USDC"],
+    amount: "1000",
+    slippage: "0.5",
+    gasPrice: "20",
+    conditions: ["Price above 2000", "Volume > 1M", "RSI < 70"]
+  });
   const strategies = useMemo(() => MOCK_STRATEGIES.filter((s) => (!onlyLive || s.status === "Live") && (risk === "All" || s.risk === risk) && s.name.toLowerCase().includes(q.toLowerCase())), [q, onlyLive, risk]);
   const totalTVL = strategies.reduce((a, b) => a + b.tvlUSD, 0);
   const avgAPR = strategies.length ? strategies.reduce((a, b) => a + b.aprPct, 0) / strategies.length : 0;
@@ -263,10 +280,49 @@ export default function TradeFlow() {
           <Button variant="outline"><Plus className="h-4 w-4" /> Add Block</Button>
         </CardHeader>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div><label className="text-xs text-gray-400">Name</label><Input placeholder="My AI LP + TWAP bot" /></div>
-          <div><label className="text-xs text-gray-400">Chain</label><Select defaultValue="Arbitrum"><option>Ethereum</option><option>Arbitrum</option><option>Polygon</option><option>Base</option></Select></div>
-          <div><label className="text-xs text-gray-400">Risk</label><Select defaultValue="Balanced"><option>Conservative</option><option>Balanced</option><option>Aggressive</option></Select></div>
-          <div className="flex items-end"><Button className="w-full"><Sparkles className="h-4 w-4" /> AI‑Suggest Params</Button></div>
+          <div>
+            <label className="text-xs text-gray-400">Name</label>
+            <Input 
+              placeholder="My AI LP + TWAP bot" 
+              value={strategyConfig.name}
+              onChange={(e) => setStrategyConfig(prev => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400">Strategy Type</label>
+            <Select 
+              value={strategyConfig.type}
+              onChange={(e) => setStrategyConfig(prev => ({ ...prev, type: e.target.value as any }))}
+            >
+              <option value="AMM_LP">AMM LP</option>
+              <option value="TWAP">TWAP</option>
+              <option value="LENDING">Lending</option>
+              <option value="PENDLE">Pendle</option>
+              <option value="ONEINCH_LOP">1inch LOP</option>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400">Risk Level</label>
+            <Select 
+              value={strategyConfig.riskLevel}
+              onChange={(e) => setStrategyConfig(prev => ({ ...prev, riskLevel: e.target.value as any }))}
+            >
+              <option value="LOW">Low Risk</option>
+              <option value="MEDIUM">Medium Risk</option>
+              <option value="HIGH">High Risk</option>
+            </Select>
+          </div>
+          <div className="flex items-end">
+            <Button className="w-full" onClick={() => {
+              // AI suggestion logic could go here
+              setStrategyConfig(prev => ({
+                ...prev,
+                riskLevel: prev.riskLevel === "LOW" ? "MEDIUM" : prev.riskLevel === "MEDIUM" ? "HIGH" : "LOW"
+              }));
+            }}>
+              <Sparkles className="h-4 w-4" /> AI‑Suggest Params
+            </Button>
+          </div>
         </div>
         <div className="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
           {[{ label: "AMM LP", icon: <Layers className="h-4 w-4" /> }, { label: "TWAP", icon: <LineChart className="h-4 w-4" /> }, { label: "Limit Order", icon: <Link2 className="h-4 w-4" /> }, { label: "Lending", icon: <DollarSign className="h-4 w-4" /> }, { label: "Pendle", icon: <Zap className="h-4 w-4" /> }].map((b) => (
@@ -275,21 +331,66 @@ export default function TradeFlow() {
         </div>
         <div className="mt-6">
           <div className="text-xs uppercase text-gray-400 mb-2">Preview</div>
-          <div className="rounded-2xl bg-black/50 border border-purple-500/30 p-4 text-sm">
-            <pre className="whitespace-pre-wrap text-xs text-gray-300">{JSON.stringify({
-              name: "My AI LP + TWAP bot",
-              chain: "Arbitrum",
-              risk: "Balanced",
-              blocks: [
-                { kind: "AMM_LP", protocol: "UniswapV3", pair: "ETH/USDC", feeTierBps: 500, range: { lower: 2300, upper: 3150 } },
-                { kind: "LIMIT_ORDER", hook: "RANGE", params: { grid: [[2400, 10], [2800, 10], [3100, 5]] } },
-                { kind: "TWAP", windowSecs: 900, maxSlippageBps: 25 },
-              ],
-              riskControls: { maxSlippageBps: 30, stopLossPct: -6.0 },
-              copyTrading: { feeFollowPct: 5, performanceFeePct: 10 },
-            }, null, 2)}</pre>
+          
+          {/* Tab Navigation */}
+          <div className="flex items-center gap-1 mb-4 p-1 bg-black/30 rounded-lg border border-purple-500/30">
+            <button
+              onClick={() => setActiveTab("workflow")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                activeTab === "workflow"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <GitBranch className="w-4 h-4" />
+              Workflow Diagram
+            </button>
+            <button
+              onClick={() => setActiveTab("json")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                activeTab === "json"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Code className="w-4 h-4" />
+              JSON Config
+            </button>
           </div>
-          <div className="mt-3 flex items-center gap-2"><Button><ArrowRight className="h-4 w-4" /> Deploy Bot</Button><Button variant="outline"><CalendarClock className="h-4 w-4" /> Schedule Backtest</Button></div>
+
+          {/* Tab Content */}
+          {activeTab === "workflow" ? (
+            <WorkflowDiagram 
+              strategy={strategyConfig}
+              className="mb-4"
+            />
+          ) : (
+            <div className="rounded-2xl bg-black/50 border border-purple-500/30 p-4 text-sm mb-4">
+              <pre className="whitespace-pre-wrap text-xs text-gray-300">{JSON.stringify({
+                name: strategyConfig.name,
+                type: strategyConfig.type,
+                riskLevel: strategyConfig.riskLevel,
+                timeHorizon: strategyConfig.timeHorizon,
+                tokens: strategyConfig.tokens,
+                amount: strategyConfig.amount,
+                slippage: strategyConfig.slippage,
+                gasPrice: strategyConfig.gasPrice,
+                conditions: strategyConfig.conditions,
+                blocks: [
+                  { kind: "AMM_LP", protocol: "UniswapV3", pair: "ETH/USDC", feeTierBps: 500, range: { lower: 2300, upper: 3150 } },
+                  { kind: "LIMIT_ORDER", hook: "RANGE", params: { grid: [[2400, 10], [2800, 10], [3100, 5]] } },
+                  { kind: "TWAP", windowSecs: 900, maxSlippageBps: 25 },
+                ],
+                riskControls: { maxSlippageBps: 30, stopLossPct: -6.0 },
+                copyTrading: { feeFollowPct: 5, performanceFeePct: 10 },
+              }, null, 2)}</pre>
+            </div>
+          )}
+          
+          <div className="flex items-center gap-2">
+            <Button><ArrowRight className="h-4 w-4" /> Deploy Bot</Button>
+            <Button variant="outline"><CalendarClock className="h-4 w-4" /> Schedule Backtest</Button>
+          </div>
         </div>
       </Card>
     </div>
