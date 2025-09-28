@@ -1,5 +1,6 @@
 import React from 'react';
-import { Users, TrendingUp, Star, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, TrendingUp, Star, Calendar, ExternalLink } from 'lucide-react';
 import { Strategy } from '../types/contracts';
 
 interface StrategyCardProps {
@@ -15,6 +16,7 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
   isFollowing = false,
   isOwnStrategy = false 
 }) => {
+  const navigate = useNavigate();
   const formatVolume = (volume: string) => {
     const vol = parseFloat(volume);
     if (vol === 0) return '$0';
@@ -90,13 +92,20 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
         )}
         
         {isOwnStrategy && (
-          <button className="flex-1 py-3 px-6 bg-gray-700/50 hover:bg-gray-700 text-white rounded-xl font-semibold transition-all duration-300 border border-gray-600 hover:border-gray-500">
+          <button 
+            onClick={() => navigate(`/strategy/${strategy.tokenId}`)}
+            className="flex-1 py-3 px-6 bg-gray-700/50 hover:bg-gray-700 text-white rounded-xl font-semibold transition-all duration-300 border border-gray-600 hover:border-gray-500"
+          >
             Manage Strategy
           </button>
         )}
         
-        <button className="px-4 py-3 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl border border-purple-500/30 transition-all duration-300 hover:scale-105">
-          <TrendingUp className="w-5 h-5 text-purple-400" />
+        <button 
+          onClick={() => navigate(`/strategy/${strategy.tokenId}`)}
+          className="px-4 py-3 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl border border-purple-500/30 transition-all duration-300 hover:scale-105 flex items-center space-x-2"
+          title="View Details"
+        >
+          <ExternalLink className="w-4 h-4 text-purple-400" />
         </button>
       </div>
     </div>
