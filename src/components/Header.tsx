@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold gradient-text">PookieFI</h1>
+              <h1 className="text-2xl font-bold gradient-text">KagamiAI</h1>
               <p className="text-sm text-gray-400">Social Copy Trading Platform</p>
             </div>
           </div>
